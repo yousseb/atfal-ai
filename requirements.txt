@@ -1,0 +1,11 @@
+pip
+wheel
+fastapi~=0.99.1
+uvicorn
+pydantic~=1.10.11
+-i https://pypi.anaconda.org/intel/simple --extra-index-url https://pypi.org/simple numpy
+Pillow
+dlib
+opencv-python-headless
+requests
+torch
