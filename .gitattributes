@@ -1,0 +1,19 @@
+# Default behaviour to automatically normalize line endings.
+* text=auto
+
+# Use lfs for models
+*.dat filter=lfs diff=lfs merge=lfs -text
+*.pt filter=lfs diff=lfs merge=lfs -text
+*.pth filter=lfs diff=lfs merge=lfs -text
+
+# And handle them as binary
+*.dat binary
+*.pt binary
+*.pth binary
+
+# Ensure lf
+*.sh text eol=lf
+*.py text eol=lf
+*.txt text eol=lf
+*.http text eol=lf
+
