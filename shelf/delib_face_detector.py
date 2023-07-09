@@ -1,10 +1,10 @@
 from pathlib import Path
 import dlib
 import cv2
-from common_utils import CommonUtilsMixin
+from common.common_utils import CommonUtilsMixin
 
 
-class FaceDetector(CommonUtilsMixin):
+class DLibFaceDetector(CommonUtilsMixin):
     def __init__(self, assets_folder: Path):
         self.assets_folder: Path = assets_folder
         self._DEBUG: bool = False

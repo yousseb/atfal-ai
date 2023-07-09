@@ -1,14 +1,15 @@
 import tempfile
 from pathlib import Path
-import dlib
 import cv2
-from common_utils import CommonUtilsMixin
+from common.common_utils import CommonUtilsMixin
 import torch
-import ESRGAN.RRDBNet_arch as arch
+import shelf.ESRGAN.RRDBNet_arch as arch
 import numpy as np
 
+# TODO: Replace with https://github.com/cszn/BSRGAN
 
-class FaceEnhancer(CommonUtilsMixin):
+
+class RRDBESRGANFaceEnhancer(CommonUtilsMixin):
     def __init__(self, assets_folder: Path):
         self.assets_folder: Path = assets_folder
         self._DEBUG: bool = False
