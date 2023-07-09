@@ -98,8 +98,8 @@ class CFRGANFaceFrontalizer(CommonUtilsMixin):
 
 
 # Test
-if __name__ == '__main__':
-    import os
-
-    ASSETS_FOLDER = Path(os.getcwd()) / 'assets'
-    FaceFrontalizer(ASSETS_FOLDER).align_faces()
+# if __name__ == '__main__':
+#     import os
+#
+#     ASSETS_FOLDER = Path(os.getcwd()) / 'assets'
+#     FaceFrontalizer(ASSETS_FOLDER).align_faces()
