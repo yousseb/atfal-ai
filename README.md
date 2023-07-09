@@ -1,3 +1,5 @@
+[![API Test](https://github.com/yousseb/atfal-ai/actions/workflows/test-app.yml/badge.svg)](https://github.com/yousseb/atfal-ai/actions/workflows/test-app.yml)
+
 # atfal-ai
 
 Reproducing the output of https://github.com/BU-Spark/ml-atfal-mafkoda-missing-children pipeline with the following considerations in mind:
