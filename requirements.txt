@@ -10,7 +10,7 @@ requests~=2.31.0
 torch~=2.0.1
 torchvision~=0.15.2
 ninja~=1.11.1
-pytorch3d
+-f git+https://github.com/facebookresearch/pytorch3d.git@stable
 scipy~=1.11.1
 openvino-dev==2023.0.1
 numba~=0.57.1
@@ -18,7 +18,7 @@ numba~=0.57.1
 # dlib
 # onnxruntime
 # codon-jit      ## TODO: investigate using https://docs.exaloop.io/codon/
-# "git+https://github.com/facebookresearch/pytorch3d.git@stable"
+# pytorch3d
 # TODO: Use Intel numpy on Intel hardware
 # -i https://pypi.anaconda.org/intel/simple --extra-index-url https://pypi.org/simple numpy
 # opencv-python-headless  # Comes with openvino
