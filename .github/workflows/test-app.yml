@@ -26,6 +26,7 @@ jobs:
         python-version: "3.10"
     - name: Install dependencies
       run: |
+        sudo sudo apt-get -y install libopenblas-dev
         python -m pip install --upgrade pip
         pip install flake8 pytest httpx
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
