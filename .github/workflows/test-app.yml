@@ -28,7 +28,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         python -m pip install "git+https://github.com/facebookresearch/pytorch3d.git@297020a4b1d7492190cb4a909cafbd2c81a12cb5"
     - name: Cache pip
-    - uses: actions/cache@v3
+      uses: actions/cache@v3
       with:
         path: ~/.cache/pip
         key: ${{ hashFiles('requirements.txt') }}
