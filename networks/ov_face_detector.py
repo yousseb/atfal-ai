@@ -3,16 +3,13 @@
 from pathlib import Path
 import cv2
 from numba import jit
-
 from common.common_utils import CommonUtilsMixin, resize_input
 import numpy as np
 from openvino.runtime import PartialShape, get_version
 import logging as log
-
 from common.ie_common import Module, OutputTransform
 
 model_name = "face-detection-adas-0001"
-base_url = 'https://storage.openvinotoolkit.org/repositories/open_model_zoo/2022.3/models_bin/1/face-detection-adas-0001/FP32/'
 model_xml_name = f'{model_name}.xml'
 model_bin_name = f'{model_name}.bin'
 
@@ -109,7 +106,6 @@ class OVFaceDetector(CommonUtilsMixin):
     def __init__(self, assets_folder: Path):
         self.assets_folder: Path = assets_folder
         self._DEBUG: bool = True
-        self.prepare_model()
         core = self.get_core()
         model_xml_path = self.assets_folder / model_xml_name
         log.info('OpenVINO Runtime')
@@ -120,15 +116,6 @@ class OVFaceDetector(CommonUtilsMixin):
                                           confidence_threshold=0.6,
                                           roi_scale_factor=1.15)
         self.face_detector.deploy('CPU')
-
-    def prepare_model(self):
-        model_xml_path = self.assets_folder / model_xml_name
-
-        if not model_xml_path.exists():
-            self.download_file(base_url + model_xml_name, self.assets_folder / model_xml_name)
-            self.download_file(base_url + model_bin_name, self.assets_folder / model_bin_name)
-        else:
-            print(f'{model_name} already downloaded to {self.assets_folder}')
 
     def detect_faces(self, image_url: str):
         local_image = str(self.download_image(image_url).absolute())

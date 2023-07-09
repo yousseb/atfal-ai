@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 from md5checker import make_hash
-from common.downloer_base import DownloaderBase
+from downloer_base import DownloaderBase
 from asset_config import Asset, ASSETS
 
 

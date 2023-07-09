@@ -27,9 +27,19 @@ jobs:
         pip install flake8 pytest httpx
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         python -m pip install "git+https://github.com/facebookresearch/pytorch3d.git@297020a4b1d7492190cb4a909cafbd2c81a12cb5"
-    - name: Download models
+    - name: Cache pip
+    - uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ hashFiles('requirements.txt') }}
+    - name: Cache assets
+      uses: actions/cache@v3
+      with:
+        path: assets
+        key: ${{ hashFiles('common/asset_config.py') }}
+    - name: Download assets
       run: |
-        python common/asset_downloader.py
+        python ./common/asset_downloader.py
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
