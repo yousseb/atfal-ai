@@ -1,5 +1,4 @@
 from fastapi.testclient import TestClient
-
 import main
 
 client = TestClient(main.app)
@@ -169,9 +168,9 @@ def test_enhance_face():
     )
     assert response.status_code == 200
 
+
 def test_frontalize_face():
     response = client.post(
         "frontalize/?image_url=https%3A%2F%2Fgithub.com%2FHRLTY%2FTP-GAN%2Fblob%2Fmaster%2Fdata-example%2F001_01_01_140_06_cropped.png%3Fraw%3Dtrue"
     )
     assert response.status_code == 200
-
