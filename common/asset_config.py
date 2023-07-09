@@ -54,5 +54,34 @@ ASSETS = [
           url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/assets%2FmmRegressor%2Fnetwork%2Fth_model_params.pth',
           hash='de971d5646c060c4faa314a8962a0e5c9b5a9d3a',
           group='CFRGAN'),
+    Asset(path=Path('networks/cfrgan/faceParsing/model_final_diss.pth'),
+          url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/networks%2Fcfrgan%2FfaceParsing%2Fmodel_final_diss.pth',
+          hash='c48cadb89f3c5df7cdd00d8f40f6641138df33ca',
+          group='CFRGAN'),
+
+
+
+    # Shelf - unused for now
+    # Asset(path=Path('shelf/assets/RRDB_ESRGAN_x4.pth'),
+    #       url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/shelf%2Fassets%2FRRDB_ESRGAN_x4.pth',
+    #       hash='16c15f5f3103d9bfe0e193ff179e5465ab095f53',
+    #       group='Shelf'),
+    #
+    # Asset(path=Path('shelf/assets/generator_v0.pt'),
+    #       url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/shelf%2Fassets%2Fgenerator_v0.pt',
+    #       hash='7c9b37e02850f5c5e6020defd5b9632147b559ab',
+    #       group='Shelf'),
+    # Asset(path=Path('shelf/assets/mmod_human_face_detector.dat'),
+    #       url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/shelf%2Fassets%2Fmmod_human_face_detector.dat',
+    #       hash='b7c18b038ebd47da8d747cfb690224942a2c4a8a',
+    #       group='Shelf'),
+    # Asset(path=Path('shelf/assets/shape_predictor_68_face_landmarks.dat'),
+    #       url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/shelf%2Fassets%2Fshape_predictor_68_face_landmarks.dat',
+    #       hash='c7b0e0780a4fda180f75aadf654838c1866ee5fb',
+    #       group='Shelf'),
+    # Asset(path=Path('shelf/assets/RRDB_PSNR_x4.pth'),
+    #       url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/shelf%2Fassets%2FRRDB_PSNR_x4.pth',
+    #       hash='045918f96e3a130c0bd2b5e8d8f1a0c0dabe135c',
+    #       group='Shelf'),
 
 ]
