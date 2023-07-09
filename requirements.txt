@@ -7,12 +7,14 @@ pydantic~=1.10.11
 numpy==1.24.*
 Pillow~=10.0.0
 requests~=2.31.0
-torch~=2.0.1 -f https://download.pytorch.org/whl/torch_stable.html
-torchvision~=0.15.2 -f https://download.pytorch.org/whl/torch_stable.html
 ninja~=1.11.1
 scipy~=1.11.1
 openvino-dev==2023.0.1
 numba~=0.57.1
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.0.1+cpu
+torchvision==0.15.2+cpu
+md5checker~=0.2.1
 
 # dlib
 # onnxruntime
@@ -23,4 +25,4 @@ numba~=0.57.1
 # opencv-python-headless  # Comes with openvino
 # matplotlib
 # pytorch3d @ git+https://github.com/facebookresearch/pytorch3d.git@297020a4b1d7492190cb4a909cafbd2c81a12cb5
-#-f git+https://github.com/facebookresearch/pytorch3d.git@stable
+# pytorch3d @ git+https://github.com/facebookresearch/pytorch3d.git@stable
