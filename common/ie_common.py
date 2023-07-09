@@ -14,6 +14,8 @@
  limitations under the License.
 """
 
+import cv2
+import numpy as np
 import logging as log
 from openvino.runtime import AsyncInferQueue
 

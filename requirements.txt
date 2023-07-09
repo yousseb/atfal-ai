@@ -7,8 +7,8 @@ pydantic~=1.10.11
 numpy==1.24.*
 Pillow~=10.0.0
 requests~=2.31.0
-torch~=2.0.1
-torchvision~=0.15.2
+torch~=2.0.1 -f https://download.pytorch.org/whl/torch_stable.html
+torchvision~=0.15.2 -f https://download.pytorch.org/whl/torch_stable.html
 ninja~=1.11.1
 -f git+https://github.com/facebookresearch/pytorch3d.git@stable
 scipy~=1.11.1
