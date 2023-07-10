@@ -1,0 +1,17 @@
+.git
+.cache
+shelf
+tests
+venv
+docker
+.github
+assets
+.editorconfig
+.gitattributes
+.gitignore
+*.log
+*.pot
+*.pyc
+**/*.pyc
+__pycache__
+.idea
