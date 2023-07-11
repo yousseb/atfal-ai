@@ -9,6 +9,7 @@ RUN apt-get update && \
     tzdata \
     libgl1 \
     libglib2.0-0 \
+    libpython3.11 \
     wget \
  && rm -rf /var/lib/apt/lists/*
 
@@ -70,7 +71,7 @@ RUN pip wheel git+https://github.com/facebookresearch/pytorch3d.git@297020a4b1d7
 # production image.
 FROM base as production
 
-COPY --from=pypackage_builder /tmp/*.whl /var/cache/pip
+COPY --from=pypackage_builder /tmp/*.whl /var/cache/pip/
 RUN pip install --break-system-packages --find-links /var/cache/pip/ pytorch3d
 
 
