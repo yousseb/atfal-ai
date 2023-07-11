@@ -1,11 +1,12 @@
 import cv2
 from openvino.runtime import Core
+from openvino.inference_engine import IECore
 from numba import jit
 from common.downloer_base import DownloaderBase
 
 
 @jit(forceobj=True)
-def resize_image(image, size, keep_aspect_ratio=False, interpolation=cv2.INTER_LINEAR):
+def resize_image(image, size, keep_aspect_ratio=False, interpolation=cv2.INTER_CUBIC):
     if not keep_aspect_ratio:
         resized_frame = cv2.resize(image, size, interpolation=interpolation)
     else:
@@ -38,7 +39,15 @@ class CoreManager(object):
 
     def get_core(self):
         if self._core is None:
+            ie = IECore()
+            cpu_caps = ie.get_metric(metric_name="OPTIMIZATION_CAPABILITIES", device_name="CPU")
+            print(f'OpenVino Available CPU Optimizations: {cpu_caps}')
             self._core = Core()
+            self._core.set_property("CPU", {"INFERENCE_PRECISION_HINT": "f32"})
+
+            if 'BF16' in cpu_caps:
+                self._core.set_property("CPU", {"INFERENCE_PRECISION_HINT": "bf16"})
+                self._core.set_property({'ENFORCE_BF16': 'YES'})
             return self._core
         else:
             return self._core

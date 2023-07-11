@@ -32,6 +32,10 @@ sudo docker run --publish 8080:8080 -it atfal-ai:latest
 You can now open your browser to: http://127.0.0.1:8080/docs and experiment with the APIs
 
 
+## TODO
+1. Consider CFPGAN for face restoration and alignment https://github.com/TencentARC/GFPGAN
+2. 
+
 ## License notes:
 1. Wherever a third-party library is included due to the need to patch it for CPU, the code within the third-party library will follow the license model for that library.
 2. Whevever a third-party code file is included, the code for that file will follow the original license model for that file. An example of this is the OpenVino demo files used in the pipeline for face detector and face enhancer.

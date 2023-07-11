@@ -11,15 +11,21 @@ class Asset:
 
 
 ASSETS = [
-    # BSR-GAN
-    Asset(path=Path('assets/bsrganx2_160x160.xml'),
-          url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/assets%2Fbsrganx2_160x160.xml',
-          hash='21b172609694d4094ebe86a4ce6902df2cde405e',
-          group='BSR-GAN'),
-    Asset(path=Path('assets/bsrganx2_160x160.bin'),
-          url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/assets%2Fbsrganx2_160x160.bin',
-          hash='d543729c721b29488fd50e80665bd9f8efd514aa',
-          group='BSR-GAN'),
+    # BSR-GAN  (Super-res x2)
+    # Asset(path=Path('assets/bsrganx2_160x160.xml'),
+    #       url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/assets%2Fbsrganx2_160x160.xml',
+    #       hash='21b172609694d4094ebe86a4ce6902df2cde405e',
+    #       group='BSR-GAN'),
+    # Asset(path=Path('assets/bsrganx2_160x160.bin'),
+    #       url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/assets%2Fbsrganx2_160x160.bin',
+    #       hash='d543729c721b29488fd50e80665bd9f8efd514aa',
+    #       group='BSR-GAN'),
+
+    # Image Enhancement
+    Asset(path=Path('assets/realesrgan_128x128.onnx'),
+          url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/assets%2Frealesrgan_128x128.onnx',
+          hash='5457754a8c3ca9eec280861f3a4ecb53c013842e',
+          group='Real-ESRGAN'),
 
     # Face Detection
     # Maybe use this instead?

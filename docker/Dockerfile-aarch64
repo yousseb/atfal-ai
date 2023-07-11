@@ -1,0 +1,78 @@
+FROM debian:bookworm-slim as base
+
+WORKDIR /app
+COPY requirements.txt .
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
+    git \
+    libopenblas0 \
+    libjemalloc2 \
+    build-essential \
+    libgl1 \
+    libglib2.0-0 \
+    wget \
+    cmake \
+    python3-dev \
+ && rm -rf /var/lib/apt/lists/*
+
+# Install OpenVino
+RUN cd /opt && wget https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.0.1/linux/l_openvino_toolkit_debian9_2023.0.1.11005.fa1c41994f3_arm64.tgz -O openvino.tgz && \
+        tar xf  openvino.tgz && rm -f openvino.tgz && \
+        mv l_openvino_toolkit_debian9_2023.0.1.11005.fa1c41994f3_arm64 openvino_2023.0.1 && \
+        ln -s openvino_2023.0.1 openvino_2023 && \
+        cd openvino_2023 && \
+        bash ./install_dependencies/install_openvino_dependencies.sh -y
+
+# Normally we would run setupvars.sh. ENVs below give the same output, but we have better visibility
+# RUN . /opt/openvino_2023/setupvars.sh && export
+# The following is the result of setupvars translated to ENV
+
+ENV INTEL_OPENVINO_DIR="/opt/openvino_2023.0.1"
+ENV InferenceEngine_DIR="/opt/openvino_2023.0.1/runtime/cmake"
+ENV LD_LIBRARY_PATH="/opt/openvino_2023.0.1/runtime/3rdparty/tbb/lib:/opt/openvino_2023.0.1/runtime/lib/aarch64"
+ENV OpenVINO_DIR="/opt/openvino_2023.0.1/runtime/cmake"
+ENV PKG_CONFIG_PATH="/opt/openvino_2023.0.1/runtime/lib/aarch64/pkgconfig"
+ENV PYTHONPATH="/opt/openvino_2023.0.1/python/python3.11:/opt/openvino_2023.0.1/python/python3:"
+ENV TBB_DIR="/opt/openvino_2023.0.1/runtime/3rdparty/tbb/lib/cmake/TBB"
+ENV ngraph_DIR="/opt/openvino_2023.0.1/runtime/cmake"
+
+RUN pip install --break-system-packages --upgrade pip && pip install --no-cache-dir --break-system-packages -r requirements.txt && \
+      pip install --no-cache-dir --break-system-packages git+https://github.com/facebookresearch/pytorch3d.git@297020a4b1d7492190cb4a909cafbd2c81a12cb5
+
+COPY . .
+
+RUN python3 ./common/asset_downloader.py
+
+## development image.
+#FROM base as development
+#
+#COPY requirements_dev.txt requirements_dev.txt
+#
+#RUN pip install -r requirements_dev.txt
+#
+#
+## testing image.
+#FROM base as testing
+#
+#RUN pip install pytest && pip install requests
+#
+#
+# production image.
+FROM base as production
+
+ENV LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libjemalloc.so.2
+
+ARG PORT=8080
+ARG HOST=0.0.0.0
+ARG APP_MODULE=main:app
+ARG WEB_CONCURRENCY=1
+
+ENV MODE=production
+ENV APP_MODULE=${APP_MODULE}
+#ENV WEB_CONCURRENCY=${WEB_CONCURRENCY}}
+ENV HOST=${HOST}
+ENV PORT=${PORT}
+
+EXPOSE ${PORT}
+
+ENTRYPOINT uvicorn ${APP_MODULE} --proxy-headers --port ${PORT} --host ${HOST}

@@ -9,7 +9,8 @@ from starlette.background import BackgroundTask
 from functools import lru_cache
 from networks.cfrgan_face_frontalizer import CFRGANFaceFrontalizer
 from config import Settings
-from networks.ov_bsrgan_face_enhancer import OVBSRGANFaceEnhancer
+from networks.ort_realesrgan_face_enhancer import ORTRealESRGANFaceEnhancer
+from networks.ov_realesrgan_face_enhancer import OVRealESRGANFaceEnhancer
 from networks.ov_face_detector import OVFaceDetector
 
 #from delib_face_detector import DLibFaceDetector
@@ -22,7 +23,8 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 ASSETS_FOLDER = Path(os.getcwd()) / 'assets'
 face_detector = OVFaceDetector(ASSETS_FOLDER)
-face_enhancer = OVBSRGANFaceEnhancer(ASSETS_FOLDER)
+#face_enhancer = OVRealESRGANFaceEnhancer(ASSETS_FOLDER)        # Crashes OV on aarch64
+face_enhancer = ORTRealESRGANFaceEnhancer(ASSETS_FOLDER)
 face_frontalizer = CFRGANFaceFrontalizer(ASSETS_FOLDER)
 
 

@@ -11,16 +11,17 @@ from openvino.runtime import PartialShape, get_version
 import logging as log
 
 
-# Model from: https://github.com/PINTO0309/PINTO_model_zoo/tree/main/240_BSRGAN
-# This is the FP32 OpenVino model
-model_name = "bsrganx2_160x160"
-model_xml_name = f'{model_name}.xml'
-model_bin_name = f'{model_name}.bin'
+# Model from: https://github.com/PINTO0309/PINTO_model_zoo/blob/main/133_Real-ESRGAN
+# This is the ONNX model for OpenVino - crashes on aarch64, so this is for Intel CPU/GPU only
+model_name = "realesrgan_128x128"
+model_xml_name = f'{model_name}.onnx'
 
 
 class FaceEnhancer(Module):
     def __init__(self, core, model, input_size):
         super(FaceEnhancer, self).__init__(core, model, 'Face Enhancer')
+        # from openvino.runtime import serialize
+        # serialize(self.model, model_xml_name)
 
         if len(self.model.inputs) != 1:
             raise RuntimeError("The model expects 1 input layer")
@@ -62,8 +63,10 @@ class FaceEnhancer(Module):
         return hr_image
 
 
-class OVBSRGANFaceEnhancer(CommonUtilsMixin):
+class OVRealESRGANFaceEnhancer(CommonUtilsMixin):
     def __init__(self, assets_folder: Path):
+        super(OVRealESRGANFaceEnhancer, self).__init__()
+
         self.assets_folder: Path = assets_folder
         self._DEBUG: bool = False
 

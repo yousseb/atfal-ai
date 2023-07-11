@@ -1,4 +1,6 @@
 # Based on https://github.com/openvinotoolkit/open_model_zoo/blob/master/demos/face_recognition_demo/python/face_detector.py
+# TODO: Compare performance if we use OpenVino PrePostProcessor
+#       https://docs.openvino.ai/2023.0/openvino_docs_OV_UG_Preprocessing_Details.html
 
 from pathlib import Path
 import cv2
