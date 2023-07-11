@@ -21,6 +21,7 @@ jobs:
       with:
         python-version: "3.10"
     - name: Cache pip
+      id: pip-cache
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
@@ -33,8 +34,10 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         # Try to install pytorch3d from whl previously compiled and cached
         # Otherwise install from git
-        find ~/.cache/pip/wheels -type f -name pytorch3d-0.7.4-cp310-cp310-linux_x86_64.whl -exec pip install {} \; || \
-          python -m pip install "git+https://github.com/facebookresearch/pytorch3d.git@297020a4b1d7492190cb4a909cafbd2c81a12cb5"
+        find ~/.cache/pip/wheels -type f -name pytorch3d-0.7.4-cp310-cp310-linux_x86_64.whl -exec pip install {} \;
+    - name: Rebuild pytorch3d
+      if: steps.pip-cache.outputs.cache-hit != 'true'
+      run: python -m pip install "git+https://github.com/facebookresearch/pytorch3d.git@297020a4b1d7492190cb4a909cafbd2c81a12cb5"
     - name: Cache assets
       uses: actions/cache@v3
       with:
