@@ -11,6 +11,7 @@ ninja~=1.11.1
 scipy~=1.11.1
 md5checker~=0.2.1
 numba~=0.57.1
+onnxruntime~=1.15.1
 
 # OpenVino - only for x64. On aarch64 we will use docker installation for it
 openvino-dev==2023.0.1; platform_machine != 'aarch64'

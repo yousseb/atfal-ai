@@ -3,6 +3,7 @@
 shelf
 tests
 venv
+openvino_env
 docker
 .github
 assets

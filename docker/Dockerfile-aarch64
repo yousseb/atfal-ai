@@ -1,18 +1,15 @@
 FROM debian:bookworm-slim as base
 
-WORKDIR /app
-COPY requirements.txt .
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
-    git \
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libopenblas0 \
     libjemalloc2 \
-    build-essential \
+    ca-certificates \
+    tzdata \
     libgl1 \
     libglib2.0-0 \
     wget \
-    cmake \
-    python3-dev \
  && rm -rf /var/lib/apt/lists/*
 
 # Install OpenVino
@@ -36,12 +33,25 @@ ENV PYTHONPATH="/opt/openvino_2023.0.1/python/python3.11:/opt/openvino_2023.0.1/
 ENV TBB_DIR="/opt/openvino_2023.0.1/runtime/3rdparty/tbb/lib/cmake/TBB"
 ENV ngraph_DIR="/opt/openvino_2023.0.1/runtime/cmake"
 
-RUN pip install --break-system-packages --upgrade pip && pip install --no-cache-dir --break-system-packages -r requirements.txt && \
-      pip install --no-cache-dir --break-system-packages git+https://github.com/facebookresearch/pytorch3d.git@297020a4b1d7492190cb4a909cafbd2c81a12cb5
+WORKDIR /app
 
+COPY requirements.txt .
+RUN pip install --break-system-packages --upgrade pip && pip install --no-cache-dir --break-system-packages -r requirements.txt
 COPY . .
-
 RUN python3 ./common/asset_downloader.py
+
+
+FROM base AS pypackage_builder
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    git \
+    build-essential \
+    cmake \
+    python3-dev \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN pip wheel git+https://github.com/facebookresearch/pytorch3d.git@297020a4b1d7492190cb4a909cafbd2c81a12cb5 -w /tmp/
 
 ## development image.
 #FROM base as development
@@ -60,13 +70,16 @@ RUN python3 ./common/asset_downloader.py
 # production image.
 FROM base as production
 
-ENV LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libjemalloc.so.2
+COPY --from=pypackage_builder /tmp/*.whl /var/cache/pip
+RUN pip install --break-system-packages --find-links /var/cache/pip/ pytorch3d
+
 
 ARG PORT=8080
 ARG HOST=0.0.0.0
 ARG APP_MODULE=main:app
 ARG WEB_CONCURRENCY=1
 
+ENV LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libjemalloc.so.2
 ENV MODE=production
 ENV APP_MODULE=${APP_MODULE}
 #ENV WEB_CONCURRENCY=${WEB_CONCURRENCY}}
