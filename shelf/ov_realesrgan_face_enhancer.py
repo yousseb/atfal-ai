@@ -54,8 +54,8 @@ class FaceEnhancer(Module):
         return super(FaceEnhancer, self).enqueue({self.input_tensor_name: input})
 
     @jit(forceobj=True)
-    def postprocess(self):
-        outputs = self.get_outputs()[0]
+    async def postprocess(self):
+        outputs = await self.get_outputs()[0]
         hr_image = np.squeeze(outputs)
         hr_image = hr_image.transpose(1, 2, 0)
         hr_image = np.clip((hr_image * 255), 0, 255).astype(np.uint8)

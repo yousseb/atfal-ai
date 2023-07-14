@@ -18,6 +18,8 @@ import cv2
 import numpy as np
 import logging as log
 from openvino.runtime import AsyncInferQueue
+from openvino.runtime import Core
+from openvino.inference_engine import IECore
 
 
 class Module:
@@ -50,14 +52,14 @@ class Module:
         self.active_requests += 1
         return True
 
-    def wait(self):
+    async def wait(self):
         if self.active_requests <= 0:
             return
         self.infer_queue.wait_all()
         self.active_requests = 0
 
-    def get_outputs(self):
-        self.wait()
+    async def get_outputs(self):
+        await self.wait()
         return [v for _, v in sorted(self.outputs.items())]
 
     def clear(self):
@@ -96,3 +98,34 @@ class OutputTransform:
         if not self.output_resolution or self.scale_factor == 1:
             return inputs
         return (np.array(inputs) * self.scale_factor).astype(np.int32)
+
+
+class CoreManager(object):
+    _core = None
+
+    def __new__(cls):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(CoreManager, cls).__new__(cls)
+        return cls.instance
+
+    def get_core(self):
+        if self._core is None:
+            ie = IECore()
+            cpu_caps = ie.get_metric(metric_name="OPTIMIZATION_CAPABILITIES", device_name="CPU")
+            print(f'OpenVino Available CPU Optimizations: {cpu_caps}')
+            self._core = Core()
+            self._core.set_property("CPU", {"INFERENCE_PRECISION_HINT": "f32"})
+
+            if 'BF16' in cpu_caps:
+                self._core.set_property("CPU", {"INFERENCE_PRECISION_HINT": "bf16"})
+                self._core.set_property({'ENFORCE_BF16': 'YES'})
+            return self._core
+        else:
+            return self._core
+
+
+class CommonUtilsMixin(DownloaderBase):
+    _core_manager = CoreManager()
+
+    def get_core(self):
+        return self._core_manager.get_core()

@@ -1,6 +1,8 @@
 import tempfile
+from datetime import timedelta
 from pathlib import Path
 import requests
+from requests_cache import CachedSession
 
 
 class DownloaderBase:
@@ -8,9 +10,11 @@ class DownloaderBase:
         pass
 
     def download_file(self, url: str, path: Path):
+        session = CachedSession('http_cache', backend='filesystem', use_temp=True, expire_after=timedelta(minutes=15))
+
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.35 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-        r = requests.get(url, headers=headers)
+        r = session.get(url, headers=headers)
         with open(path, 'wb') as f:
             for chunk in r.iter_content(chunk_size=1024):
                 if chunk:  # filter out keep-alive new chunks

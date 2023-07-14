@@ -1,11 +1,7 @@
 import cv2
-from openvino.runtime import Core
-from openvino.inference_engine import IECore
-from numba import jit
 from common.downloer_base import DownloaderBase
 
 
-@jit(forceobj=True)
 def resize_image(image, size, keep_aspect_ratio=False, interpolation=cv2.INTER_CUBIC):
     if not keep_aspect_ratio:
         resized_frame = cv2.resize(image, size, interpolation=interpolation)
@@ -16,8 +12,7 @@ def resize_image(image, size, keep_aspect_ratio=False, interpolation=cv2.INTER_C
     return resized_frame
 
 
-@jit(forceobj=True)
-def resize_input(image, target_shape, nchw_layout):
+def resize_input(image, target_shape, nchw_layout: bool):
     if nchw_layout:
         _, _, h, w = target_shape
     else:
@@ -29,32 +24,3 @@ def resize_input(image, target_shape, nchw_layout):
     return resized_image
 
 
-class CoreManager(object):
-    _core = None
-
-    def __new__(cls):
-        if not hasattr(cls, 'instance'):
-            cls.instance = super(CoreManager, cls).__new__(cls)
-        return cls.instance
-
-    def get_core(self):
-        if self._core is None:
-            ie = IECore()
-            cpu_caps = ie.get_metric(metric_name="OPTIMIZATION_CAPABILITIES", device_name="CPU")
-            print(f'OpenVino Available CPU Optimizations: {cpu_caps}')
-            self._core = Core()
-            self._core.set_property("CPU", {"INFERENCE_PRECISION_HINT": "f32"})
-
-            if 'BF16' in cpu_caps:
-                self._core.set_property("CPU", {"INFERENCE_PRECISION_HINT": "bf16"})
-                self._core.set_property({'ENFORCE_BF16': 'YES'})
-            return self._core
-        else:
-            return self._core
-
-
-class CommonUtilsMixin(DownloaderBase):
-    _core_manager = CoreManager()
-
-    def get_core(self):
-        return self._core_manager.get_core()

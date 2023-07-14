@@ -1,13 +1,18 @@
 # Based on https://github.com/openvinotoolkit/open_model_zoo/blob/master/demos/face_recognition_demo/python/face_detector.py
 # TODO: Compare performance if we use OpenVino PrePostProcessor
 #       https://docs.openvino.ai/2023.0/openvino_docs_OV_UG_Preprocessing_Details.html
+#       Or use with OpenCV dnn
+#       https://inspirisys.com/public/blog-details/Low-Code-Face-Detection-with-OpenVINO-toolkit/154
 
 from pathlib import Path
 import cv2
-from numba import jit
+from numpy._typing import NDArray
+from numba import int64, float32  # import the types
+from openvino._pyopenvino.preprocess import PrePostProcessor
+from api.models import Box
 from common.common_utils import CommonUtilsMixin, resize_input
 import numpy as np
-from openvino.runtime import PartialShape, get_version
+from openvino.runtime import PartialShape, Layout, Type, get_version
 import logging as log
 from common.ie_common import Module, OutputTransform
 
@@ -17,32 +22,27 @@ model_bin_name = f'{model_name}.bin'
 
 
 class FaceDetector(Module):
-    class Result:
-        OUTPUT_SIZE = 7
-
+    class Result(object):
         def __init__(self, output):
-            self.image_id = output[0]
-            self.label = int(output[1])
-            self.confidence = output[2]
-            self.position = np.array((output[3], output[4]))  # (x, y)
-            self.size = np.array((output[5], output[6]))  # (w, h)
+            self.image_id: int = output[0]
+            self.label: int = int(output[1])
+            self.confidence: float = output[2]
+            self.position: NDArray[float32] = np.array((output[3], output[4]))  # (x, y)
+            self.size: NDArray[float32] = np.array((output[5], output[6]))  # (w, h)
 
-        @jit(forceobj=True)
-        def rescale_roi(self, roi_scale_factor=1.0):
+        def rescale_roi(self, roi_scale_factor: float = 1.0):
             self.position -= self.size * 0.5 * (roi_scale_factor - 1.0)
             self.size *= roi_scale_factor
 
-        @jit(forceobj=True)
-        def resize_roi(self, frame_width, frame_height):
+        def resize_roi(self, frame_width: int, frame_height: int):
             self.position[0] *= frame_width
             self.position[1] *= frame_height
             self.size[0] = self.size[0] * frame_width - self.position[0]
             self.size[1] = self.size[1] * frame_height - self.position[1]
 
-        @jit(forceobj=True)
         def clip(self, width, height):
-            min = [0, 0]
-            max = [width, height]
+            min = np.array([0, 0])
+            max = np.array([width, height])
             self.position[:] = np.clip(self.position, min, max)
             self.size[:] = np.clip(self.size, min, max)
 
@@ -60,11 +60,11 @@ class FaceDetector(Module):
         elif not (input_size[0] == 0 and input_size[1] == 0):
             raise ValueError("Both input height and width should be positive for Face Detector reshape")
 
-        self.input_shape = self.model.inputs[0].shape
+        self.input_shape = list(self.model.inputs[0].shape)
         self.nchw_layout = self.input_shape[1] == 3
         self.output_shape = self.model.outputs[0].shape
-        if len(self.output_shape) != 4 or self.output_shape[3] != self.Result.OUTPUT_SIZE:
-            raise RuntimeError("The model expects output shape with {} outputs".format(self.Result.OUTPUT_SIZE))
+        if len(self.output_shape) != 4 or self.output_shape[3] != 7:
+            raise RuntimeError("The model expects output shape with 7 outputs")
 
         if confidence_threshold > 1.0 or confidence_threshold < 0:
             raise ValueError("Confidence threshold is expected to be in range [0; 1]")
@@ -85,9 +85,8 @@ class FaceDetector(Module):
     def enqueue(self, input):
         return super(FaceDetector, self).enqueue({self.input_tensor_name: input})
 
-    @jit(forceobj=True)
-    def postprocess(self):
-        outputs = self.get_outputs()[0]
+    async def postprocess(self):
+        outputs = (await self.get_outputs())[0]
         # outputs shape is [N_requests, 1, 1, N_max_faces, 7]
 
         results = []
@@ -107,7 +106,7 @@ class FaceDetector(Module):
 class OVFaceDetector(CommonUtilsMixin):
     def __init__(self, assets_folder: Path):
         self.assets_folder: Path = assets_folder
-        self._DEBUG: bool = True
+        self._DEBUG: bool = False
         core = self.get_core()
         model_xml_path = self.assets_folder / model_xml_name
         log.info('OpenVINO Runtime')
@@ -119,7 +118,7 @@ class OVFaceDetector(CommonUtilsMixin):
                                           roi_scale_factor=1.15)
         self.face_detector.deploy('CPU')
 
-    def detect_faces(self, image_url: str):
+    async def detect_faces(self, image_url: str) -> list[Box]:
         local_image = str(self.download_image(image_url).absolute())
         image = cv2.imread(local_image)
         if self._DEBUG:
@@ -130,8 +129,18 @@ class OVFaceDetector(CommonUtilsMixin):
         output_transform = OutputTransform(size, None)
 
         # numpy_image = np.asarray(image)
-        rois = self.face_detector.infer((image,))
+        rois = await self.face_detector.infer((image,))
         boxes = []
+        await self.rois_to_boxes(boxes, output_transform, rois, size)
+
+        # if self._DEBUG:
+        #     cv2.rectangle(output_image, pt1=(box.x1, box.y1), pt2=(box.x2, box.y2), color=(0, 0, 255),
+        #                   thickness=2)
+        #     cv2.imwrite('test.png', output_image)
+
+        return boxes
+
+    async def rois_to_boxes(self, boxes, output_transform, rois, size):
         for roi in rois:
             xmin = max(int(roi.position[0]), 0)
             ymin = max(int(roi.position[1]), 0)
@@ -139,15 +148,5 @@ class OVFaceDetector(CommonUtilsMixin):
             ymax = min(int(roi.position[1] + roi.size[1]), size[0])
             xmin, ymin, xmax, ymax = output_transform.scale([xmin, ymin, xmax, ymax])
 
-            box = {'x1': xmin,
-                   'x2': xmax,
-                   'y1': ymin,
-                   'y2': ymax}
+            box = Box(x1=xmin, x2=xmax, y1=ymin, y2=ymax)
             boxes.append(box)
-
-            if self._DEBUG:
-                cv2.rectangle(output_image, pt1=(box['x1'], box['y1']), pt2=(box['x2'], box['y2']), color=(0, 0, 255),
-                              thickness=2)
-                cv2.imwrite('test.png', output_image)
-
-        return boxes

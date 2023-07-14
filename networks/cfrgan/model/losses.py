@@ -8,7 +8,7 @@ from torch.autograd import Variable
 
 
 class PerceptualLoss(nn.Module):
-    def __init__(self, model_type='resnet'):
+    def __init__(self, model_type='vgg'):
         super(PerceptualLoss, self).__init__()
         if model_type=='resnet':
             self.criterion = ResLoss()

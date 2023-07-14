@@ -2,17 +2,18 @@ import copy
 import tempfile
 from pathlib import Path
 import cv2
-from numba import jit
+from numba import jit, njit
 import numpy as np
 import onnxruntime
 import logging as log
 
-from common.common_utils import CommonUtilsMixin, resize_input
+from common.downloer_base import DownloaderBase
 
 # Model from: https://github.com/PINTO0309/PINTO_model_zoo/blob/main/133_Real-ESRGAN
 # This is the ONNX model for ORT mainly for aarch64, should also run on Intel CPU
 model_name = "realesrgan_128x128"
-model_xml_name = f'{model_name}.onnx'
+model_file_name = f'{model_name}.onnx'
+model_fp16_file_name = f'{model_name}-fp16.onnx'
 
 
 class FaceEnhancer:
@@ -20,7 +21,6 @@ class FaceEnhancer:
         self.onnx_session = onnx_session
         self.input_shape = input_shape
 
-    @jit(forceobj=True)
     def preprocess(self, frame):
         input_image = cv2.resize(frame, dsize=(self.input_shape[1], self.input_shape[0]))
         input_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2RGB)
@@ -48,15 +48,24 @@ class FaceEnhancer:
         return hr_image
 
 
-class ORTRealESRGANFaceEnhancer(CommonUtilsMixin):
+class ORTRealESRGANFaceEnhancer(DownloaderBase):
     def __init__(self, assets_folder: Path):
         super().__init__()
         self.assets_folder: Path = assets_folder
         self._DEBUG: bool = False
-        model_xml_path = self.assets_folder / model_xml_name
-
-        onnx_session = onnxruntime.InferenceSession(model_xml_path)
+        model_full_path = self.assets_folder / model_file_name
+        #self._convert_fp16()
+        onnx_session = onnxruntime.InferenceSession(model_full_path)
         self.face_enhancer = FaceEnhancer(onnx_session, (128, 128))
+
+    def _convert_fp16(self):
+        import onnx
+        from onnxconverter_common import float16
+        model_full_path = self.assets_folder / model_file_name
+
+        model = onnx.load(model_full_path)
+        model_fp16 = float16.convert_float_to_float16(model)
+        onnx.save(model_fp16, self.assets_folder / model_fp16_file_name)
 
     def get_best_input_rect(self, box, image_shape):
         new_box = copy.deepcopy(box)

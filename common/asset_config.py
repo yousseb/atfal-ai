@@ -30,14 +30,27 @@ ASSETS = [
     # Face Detection
     # Maybe use this instead?
     # 'https://storage.openvinotoolkit.org/repositories/open_model_zoo/2022.3/models_bin/1/face-detection-adas-0001/FP32/'
-    Asset(path=Path('assets/face-detection-adas-0001.xml'),
-          url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/assets%2Fface-detection-adas-0001.xml',
-          hash='dbba0527caf53d50367b07d8ada5b030fdb6a699',
-          group='Face-Detection'),
-    Asset(path=Path('assets/face-detection-adas-0001.bin'),
-          url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/assets%2Fface-detection-adas-0001.bin',
-          hash='79ca338fff14ddb54a3763c8b3d3f6a0b11bedaf',
-          group='Face-Detection'),
+    #Asset(path=Path('assets/face-detection-adas-0001.xml'),
+    #      url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/assets%2Fface-detection-adas-0001.xml',
+    #      hash='dbba0527caf53d50367b07d8ada5b030fdb6a699',
+    #      group='Face-Detection'),
+    #Asset(path=Path('assets/face-detection-adas-0001.bin'),
+    #      url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/assets%2Fface-detection-adas-0001.bin',
+    #      hash='79ca338fff14ddb54a3763c8b3d3f6a0b11bedaf',
+    #      group='Face-Detection'),
+
+    # RetinaFace
+    Asset(path=Path('assets/priorbox_640x640.json'),
+          url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/assets%2Fpriorbox_640x640.json',
+          hash='7354ea6805eb1fda945a5f5f1fa8cfdaca7cbdf6',
+          group='RetinaFace'),
+    Asset(path=Path('assets/retinaface_640x640_opt.onnx'),
+          url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/assets%2Fretinaface_640x640_opt.onnx',
+          hash='c8cf0f1c2673695d19e462f9df20c52aaaa0e347',
+          group='CFRGAN'),
+
+
+
 
     # CFRGAN
     Asset(path=Path('assets/CFRNet_G_ep55_vgg.pth'),
@@ -47,6 +60,10 @@ ASSETS = [
     Asset(path=Path('assets/trained_weights_occ_3d.pth'),
           url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/assets%2Ftrained_weights_occ_3d.pth',
           hash='bc1990a3ff701585503615c83982474e2798e62a',
+          group='CFRGAN'),
+    Asset(path=Path('assets/trained_weights_occ_3d.onnx'),
+          url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/assets%2Ftrained_weights_occ_3d.onnx',
+          hash='ec6bfbf6a831bf9296f5ead5a1a050f958a7f5bf',
           group='CFRGAN'),
     Asset(path=Path('assets/mmRegressor/BFM/BFM_model_80.mat'),
           url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/assets%2FmmRegressor%2FBFM%2FBFM_model_80.mat',

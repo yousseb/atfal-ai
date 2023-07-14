@@ -15,10 +15,10 @@ Accept: application/json
 Content-Type: application/json
 
 {
-  "x1": 285,
-  "x2": 426,
-  "y1": 373,
-  "y2": 514
+    "x1": 743,
+    "x2": 768,
+    "y1": 43,
+    "y2": 111
 }
 
 ###

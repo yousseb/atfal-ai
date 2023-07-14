@@ -8,15 +8,19 @@ numpy==1.24.*
 Pillow~=10.0.0
 requests~=2.31.0
 ninja~=1.11.1
-scipy~=1.11.1
+scipy~=1.11.1; platform_machine != 'aarch64'
+scipy; platform_machine == 'aarch64'
 md5checker~=0.2.1
 numba~=0.57.1
-onnxruntime~=1.15.1
+onnxruntime~=1.15.1; platform_machine != 'aarch64'
+requests-cache~=1.1.0
+opencv-python-headless~=4.8.0.74
+#nms
 
+# We no longer do openvino. Only onnx and pytorch with the hope to move fully to onnx
 # OpenVino - only for x64. On aarch64 we will use docker installation for it
-openvino-dev==2023.0.1; platform_machine != 'aarch64'
+# openvino-dev==2023.0.1; platform_machine != 'aarch64'
 # We should also install opencv manually since it doesn't come with OpenVino aarch64 download for docker
-opencv-python-headless==4.8.0.74; platform_machine == 'aarch64'
 
 # PyTorch on aarch64
 torch==2.0.1; platform_machine == 'aarch64'

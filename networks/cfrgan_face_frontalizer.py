@@ -1,14 +1,16 @@
+# TODO: Check if we can user this instead: https://github.com/scaleway/frontalization
 import tempfile
 from pathlib import Path
 import cv2
-from common.common_utils import CommonUtilsMixin
+import numpy as np
 import torch.backends.cudnn as cudnn
 import torch
 import sys
 import os
+from common.downloer_base import DownloaderBase
 
 
-class CFRGANFaceFrontalizer(CommonUtilsMixin):
+class CFRGANFaceFrontalizer(DownloaderBase):
     def __init__(self, assets_folder: Path):
         self.assets_folder: Path = assets_folder
         self._DEBUG: bool = False
@@ -35,39 +37,6 @@ class CFRGANFaceFrontalizer(CommonUtilsMixin):
         # self.saved_model = torch.load(model_path, map_location=torch.device('cpu'))
         print('Model successfully loaded!')
 
-    # def check_keys(self, model, pretrained_state_dict):
-    #     ckpt_keys = set(pretrained_state_dict.keys())
-    #     model_keys = set(model.state_dict().keys())
-    #     used_pretrained_keys = model_keys & ckpt_keys
-    #     unused_pretrained_keys = ckpt_keys - model_keys
-    #     missing_keys = model_keys - ckpt_keys
-    #     print('Missing keys:{}'.format(len(missing_keys)))
-    #     print('Unused checkpoint keys:{}'.format(len(unused_pretrained_keys)))
-    #     print('Used keys:{}'.format(len(used_pretrained_keys)))
-    #     assert len(used_pretrained_keys) > 0, 'load NONE from pretrained checkpoint'
-    #     return True
-    #
-    # def remove_prefix(self, state_dict, prefix):
-    #     ''' Old style model is stored with all names of parameters sharing common prefix 'module.' '''
-    #     print('remove prefix \'{}\''.format(prefix))
-    #     f = lambda x: x.split(prefix, 1)[-1] if x.startswith(prefix) else x
-    #     return {f(key): value for key, value in state_dict.items()}
-    #
-    # def load_model(self, model, pretrained_path, load_to_cpu):
-    #     print('Loading pretrained model from {}'.format(pretrained_path))
-    #     if load_to_cpu:
-    #         pretrained_dict = torch.load(pretrained_path, map_location=lambda storage, loc: storage)
-    #     else:
-    #         device = torch.cuda.current_device()
-    #         pretrained_dict = torch.load(pretrained_path, map_location=lambda storage, loc: storage.cuda(device))
-    #     if "state_dict" in pretrained_dict.keys():
-    #         pretrained_dict = self.remove_prefix(pretrained_dict['state_dict'], 'module.')
-    #     else:
-    #         pretrained_dict = self.remove_prefix(pretrained_dict, 'module.')
-    #     self.check_keys(model, pretrained_dict)
-    #     model.load_state_dict(pretrained_dict, strict=False)
-    #     return model
-
     def normalize(self, img):
         return (img - 0.5) * 2
 
@@ -79,9 +48,11 @@ class CFRGANFaceFrontalizer(CommonUtilsMixin):
 
         # rotated: RGB, guidance: BGR
         rotated, guidance = self.estimator3d.generate_testing_pairs(input_img, pose=[5.0, 0.0, 0.0])
-
         rotated = self.normalize(rotated[..., [2, 1, 0]].permute(0, 3, 1, 2).contiguous())
         guidance = self.normalize(guidance[..., [2, 1, 0]].permute(0, 3, 1, 2).contiguous())
+
+        #self._cfrnet_export_to_onnx(rotated, guidance)
+
         output, occ_mask = self.cfrnet(rotated, guidance)
         output = (output / 2) + 0.5
         output = (output.permute(0, 2, 3, 1) * 255).cpu().detach().numpy().astype('uint8')
@@ -96,10 +67,48 @@ class CFRGANFaceFrontalizer(CommonUtilsMixin):
         print(f'{temp_file_name}.png')
         return f'{temp_file_name}.png'
 
+    def _cfrnet_export_to_onnx(self, rotated, guidance):
+        sys.path.append(str((Path(os.getcwd()) / 'networks' / 'cfrgan').absolute()))
+        from model.networks import CFRNet
+        import onnx
+        import onnxruntime
 
-# Test
-# if __name__ == '__main__':
-#     import os
-#
-#     ASSETS_FOLDER = Path(os.getcwd()) / 'assets'
-#     FaceFrontalizer(ASSETS_FOLDER).align_faces()
+        onnx_model_path = str(Path(self.assets_folder / 'CFRNet_G_ep55_vgg.onnx').absolute())
+
+        torch.save(self.cfrnet.state_dict(), str(Path(self.assets_folder / 'CFRNet_G_ep55_vgg_saved.pth').absolute()))
+        self.cfrnet = CFRNet().cpu()
+        self.cfrnet.load_state_dict(torch.load(str(Path(self.assets_folder / 'CFRNet_G_ep55_vgg_saved.pth').absolute())))
+        self.cfrnet.eval()
+
+        torch.onnx.export(self.cfrnet,
+                          args=(rotated, guidance),
+                          f=onnx_model_path,
+                          export_params=True,
+                          opset_version=12,
+                          do_constant_folding=True,
+                          input_names=['rotated', 'guidance'],
+                          output_names=['output', 'occ_mask'],
+                          dynamic_axes={'input': {0: 'batch_size'},
+                                        'output': {0: 'batch_size'}}
+                          )
+
+        onnx_model = onnx.load(onnx_model_path)
+        onnx.checker.check_model(onnx_model)
+        ort_session = onnxruntime.InferenceSession(onnx_model_path)
+        def to_numpy(tensor):
+            return tensor.detach().cpu().numpy()
+
+        output, occ_mask = self.cfrnet(rotated, guidance)
+
+        # compute ONNX Runtime output prediction
+        ort_output, ort_occ_mask = ort_session.run(None, {
+            ort_session.get_inputs()[0].name: rotated.cpu().detach().numpy(),
+            ort_session.get_inputs()[1].name: guidance.cpu().detach().numpy()
+        })
+
+        # compare ONNX Runtime and PyTorch results
+        np.testing.assert_allclose(to_numpy(output), ort_output, rtol=1e-01, atol=1e-07)
+        print('output match...')
+
+        np.testing.assert_allclose(to_numpy(occ_mask), ort_occ_mask, rtol=1e-01, atol=1e-07)
+        print('occ_mask match...')

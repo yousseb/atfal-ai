@@ -6,7 +6,7 @@ from model.layers import *
 
 
 class VGG19(torch.nn.Module):
-    def __init__(self, requires_grad=False):
+    def __init__(self, requires_grad=True):
         super(VGG19, self).__init__()
         vgg_pretrained_features = vgg19(pretrained=True).features
         self.slice1 = torch.nn.Sequential()

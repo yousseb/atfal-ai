@@ -3,6 +3,7 @@
 from ctypes import ArgumentError
 import os ; import sys
 from pathlib import Path
+import onnxruntime
 
 os.chdir( os.path.split( os.path.realpath( sys.argv[0] ) )[0] ) 
 
@@ -97,33 +98,93 @@ class Estimator3D(object):
 
     def load_3dmm_models(self, model_path, test=True):
         # read face model
-        self.face_model = BFM(str((Path(self.assets_path)/'mmRegressor'/'BFM'/'BFM_model_80.mat').absolute()), self.cuda_id)
+        self.face_model = BFM(str((Path(self.assets_path)/'mmRegressor/BFM/BFM_model_80.mat').absolute()), self.cuda_id)
 
         # read standard landmarks for preprocessing images
-        self.lm3D = self.face_model.load_lm3d(str((Path(self.assets_path)/'mmRegressor'/'BFM'/'similarity_Lm3D_all.mat').absolute()))
-        
-        regressor = resnet50_use()
-        if model_path is None:
-            regressor.load_state_dict(torch.load("mmRegressor/network/th_model_params.pth"))
-        else:
-            if self.is_cuda:
-                regressor.load_state_dict(torch.load(model_path, map_location='cuda:'+str(self.cuda_id)))
-            else:
-                regressor.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+        self.lm3D = self.face_model.load_lm3d(str((Path(self.assets_path)/'mmRegressor/BFM/similarity_Lm3D_all.mat').absolute()))
 
-        if test:
-            regressor.eval()
-        if self.is_cuda:
-            regressor = regressor.cuda(self.cuda_id)
-        if test:
-            for param in regressor.parameters():
-                param.requires_grad = False
+        # FIXME:  Regressor start
+        self.export_regressor_to_onnx = False
+        if self.export_regressor_to_onnx:
+            self.regressor_is_onnx = False
+            regressor = resnet50_use()
+            if model_path is None:
+                regressor.load_state_dict(torch.load("mmRegressor/network/th_model_params.pth"))
+            else:
+                if self.is_cuda:
+                    regressor.load_state_dict(torch.load(model_path, map_location='cuda:'+str(self.cuda_id)))
+                else:
+                    regressor.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+
+            if test:
+                regressor.eval()
+            if self.is_cuda:
+                regressor = regressor.cuda(self.cuda_id)
+            if test:
+                for param in regressor.parameters():
+                    param.requires_grad = False
+        else:
+            self.regressor_is_onnx = True
+            regressor = self.resnet50_use_onnx()
+            # self.pyregressor = resnet50_use()
+            # self.pyregressor.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+
+        # FIXME: Regressor end
 
         self.regressor = regressor
 
+
+    def resnet50_use_onnx(self):
+        onnx_model_path = str((Path(self.assets_path) / 'trained_weights_occ_3d.onnx'))
+        self.regressor = onnxruntime.InferenceSession(onnx_model_path)
+        return self.regressor
+
     def regress_3dmm(self, img):
-        arr_coef = self.regressor(img)
-        coef = torch.cat(arr_coef, 1)
+        # FIXME: Regressor use start
+        if self.regressor_is_onnx:
+            # pyarr_coef = self.pyregressor(img)
+            # pycoef = torch.cat(pyarr_coef, 1)
+            ort_inputs = {self.regressor.get_inputs()[0].name: img.detach().numpy()}
+            arr_coef = self.regressor.run(None, ort_inputs)
+            coef = torch.from_numpy(np.concatenate(arr_coef, 1))
+        else:
+            arr_coef = self.regressor(img)
+            coef = torch.cat(arr_coef, 1)
+
+        if self.export_regressor_to_onnx:   # Set to True to export the onnx model
+            import onnx
+            import onnxruntime
+            onnx_model_path = str((Path(self.assets_path)/'trained_weights_occ_3d.onnx'))
+            self.regressor.eval()
+            torch.onnx.export(self.regressor,
+                              img,
+                              onnx_model_path,
+                              export_params=True,
+                              opset_version=12,
+                              do_constant_folding=True,
+                              input_names=['input'],
+                              output_names=['outs'],
+                              dynamic_axes={'input': {0: 'batch_size'},
+                                            'outs':  {0: 'batch_size'}}
+                              )
+            onnx_model = onnx.load(onnx_model_path)
+            onnx.checker.check_model(onnx_model)
+            ort_session = onnxruntime.InferenceSession(onnx_model_path)
+
+            def to_numpy(tensor):
+                return tensor.detach().cpu().numpy()
+
+            # compute ONNX Runtime output prediction
+            val = img.detach().numpy()
+            print(val.shape)
+            ort_inputs = {ort_session.get_inputs()[0].name: img.detach().numpy()}
+            ort_outs = ort_session.run(None, ort_inputs)
+
+            # compare ONNX Runtime and PyTorch results
+            for n in range(5):
+                np.testing.assert_allclose(to_numpy(arr_coef[n]), ort_outs[n], rtol=1e-03, atol=1e-05)
+
+        # FIXME: Regressor use end
 
         return coef
 
@@ -368,7 +429,7 @@ class Estimator3D(object):
 
         return colors
 
-
+    # FIXME: Only for testing
     def swap_and_rotate_and_render(self, image, parsing_net, scd):
         # Regress 3DMM parameters
         coef = self.regress_3dmm(image) # RGB2BGR
