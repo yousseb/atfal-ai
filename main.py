@@ -34,8 +34,8 @@ def get_settings():
 
 
 @app.get("/faces/")
-async def detect_faces(image_url: str) -> list[Box]:
-    faces = await face_detector.detect_faces(image_url=image_url)
+async def detect_faces(image_url: str):
+    faces = face_detector.detect_faces(image_url=image_url)
     return faces
 
 

@@ -135,8 +135,15 @@ class Estimator3D(object):
 
 
     def resnet50_use_onnx(self):
+        options = onnxruntime.SessionOptions()
+        options.inter_op_num_threads = 1
+        options.intra_op_num_threads = 4
+        options.execution_mode = onnxruntime.ExecutionMode.ORT_SEQUENTIAL
+        options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_ENABLE_ALL
+        options.log_severity_level = 3
+        providersList = onnxruntime.capi._pybind_state.get_available_providers()
         onnx_model_path = str((Path(self.assets_path) / 'trained_weights_occ_3d.onnx'))
-        self.regressor = onnxruntime.InferenceSession(onnx_model_path)
+        self.regressor = onnxruntime.InferenceSession(onnx_model_path, sess_options=options, providers=providersList)
         return self.regressor
 
     def regress_3dmm(self, img):

@@ -55,7 +55,14 @@ class ORTRealESRGANFaceEnhancer(DownloaderBase):
         self._DEBUG: bool = False
         model_full_path = self.assets_folder / model_file_name
         #self._convert_fp16()
-        onnx_session = onnxruntime.InferenceSession(model_full_path)
+        options = onnxruntime.SessionOptions()
+        options.inter_op_num_threads = 1
+        options.intra_op_num_threads = 4
+        options.execution_mode = onnxruntime.ExecutionMode.ORT_SEQUENTIAL
+        options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_ENABLE_ALL
+        options.log_severity_level = 3
+        providersList = onnxruntime.capi._pybind_state.get_available_providers()
+        onnx_session = onnxruntime.InferenceSession(str(model_full_path), sess_options=options, providers=providersList)
         self.face_enhancer = FaceEnhancer(onnx_session, (128, 128))
 
     def _convert_fp16(self):

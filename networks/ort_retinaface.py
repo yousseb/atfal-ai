@@ -20,7 +20,7 @@ class ORTFaceDetector(DownloaderBase):
                                                 json_path=str(json_priors_path.absolute()),
                                                 top_k=40, min_conf=0.2)
 
-    async def detect_faces(self, image_url: str) -> list[Box]:
+    def detect_faces(self, image_url: str):
         local_image = str(self.download_image(image_url).absolute())
         image = cv2.imread(local_image, cv2.IMREAD_COLOR)
         if self._DEBUG:
