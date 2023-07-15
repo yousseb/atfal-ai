@@ -10,19 +10,37 @@ from networks.cfrgan_face_frontalizer import CFRGANFaceFrontalizer
 from config import Settings
 from networks.ort_realesrgan_face_enhancer import ORTRealESRGANFaceEnhancer
 from networks.ort_retinaface import ORTFaceDetector
-#from networks.ov_realesrgan_face_enhancer import OVRealESRGANFaceEnhancer
-#from networks.ov_face_detector import OVFaceDetector
-# from delib_face_detector import DLibFaceDetector
-# from face_frontalizer import FaceFrontalizer
-# from rrdb_esrgan_face_enhancer import RRDB_ESRGANFaceEnhancer
 
-app = FastAPI()
+description = """
+This site should not be used except by Atfalmafkoda scheduled jobs.
+
+Code running this API can be found here: <https://github.com/yousseb/atfal-ai>
+
+## Faces
+
+* Detect faces and returns **boxes** where faces could be within a given image.
+* Enhances faces
+* Frontalizes faces
+
+"""
+app = FastAPI(
+    title="Atfalmafkoda AI APIs 🚀",
+    description=description,
+    summary="AI API engine to help extract and match missing cases.",
+    version="0.0.2",
+    contact={
+        "name": "Atfalmafkoda",
+        "url": "https://atfalmafkoda.com/",
+    },
+    license_info={
+        "name": "MIT",
+        "url": "https://opensource.org/license/mit/",
+    },
+)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 ASSETS_FOLDER = Path(os.getcwd()) / 'assets'
-#face_detector = OVFaceDetector(ASSETS_FOLDER)
-# face_enhancer = OVRealESRGANFaceEnhancer(ASSETS_FOLDER)        # Crashes OV on aarch64
 face_detector = ORTFaceDetector(ASSETS_FOLDER)
 face_enhancer = ORTRealESRGANFaceEnhancer(ASSETS_FOLDER)
 face_frontalizer = CFRGANFaceFrontalizer(ASSETS_FOLDER)

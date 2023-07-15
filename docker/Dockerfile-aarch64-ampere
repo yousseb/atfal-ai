@@ -1,0 +1,85 @@
+FROM amperecomputingai/onnxruntime:1.6.0 as base
+
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    libopenblas0 \
+    libjemalloc2 \
+    ca-certificates \
+    tzdata \
+    libgl1 \
+    libglib2.0-0 \
+    libpython3.8 \
+    wget \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install  --upgrade pip && pip install --no-cache-dir -r requirements.txt
+COPY . .
+RUN python3 ./common/asset_downloader.py
+
+
+FROM base AS pypackage_builder
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    git \
+    build-essential \
+    cmake \
+    python3-dev \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN pip wheel git+https://github.com/facebookresearch/pytorch3d.git@297020a4b1d7492190cb4a909cafbd2c81a12cb5 -w /tmp/
+
+## development image.
+#FROM base as development
+#
+#COPY requirements_dev.txt requirements_dev.txt
+#
+#RUN pip install -r requirements_dev.txt
+#
+#
+## testing image.
+#FROM base as testing
+#
+#RUN pip install pytest && pip install requests
+#
+#
+# production image.
+FROM base as production
+
+COPY --from=pypackage_builder /tmp/*.whl /var/cache/pip/
+RUN pip install  --find-links /var/cache/pip/ pytorch3d
+
+# If we use the pytorch version of base https://hub.docker.com/u/amperecomputingai
+# Do the following trick to extract onnxruntime:
+  #sudo docker rm ort-aio || true
+  #sudo docker run --privileged=true --name ort-aio --network host -it -d amperecomputingai/onnxruntime:1.6.0
+  #sudo docker exec ort-aio bash -c '[ -f /tmp/onnxruntime-1.13.1+aioab4cc.tar.gz ] && \
+  #     rm -fr /tmp/onnxruntime-1.13.1+aioab4cc.tar.gz; \
+  #     tar cfzv /tmp/onnxruntime-1.13.1+aioab4cc.tar.gz \
+  #         /usr/local/lib/python3.8/dist-packages/onnxruntime-1.13.1+aioab4cc.dist-info/ \
+  #         /usr/local/lib/python3.8/dist-packages/onnxruntime/'
+  #sudo docker cp ort-aio:/tmp/onnxruntime-1.13.1+aioab4cc.tar.gz .
+  #sudo docker stop ort-aio || true
+  #sudo docker rm ort-aio || true
+# Then uncomment the line below
+#ADD onnxruntime-1.13.1+aioab4cc.tar.gz /
+
+ARG PORT=8080
+ARG HOST=0.0.0.0
+ARG APP_MODULE=main:app
+ARG WEB_CONCURRENCY=1
+
+ENV LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libjemalloc.so.2
+ENV MODE=production
+ENV APP_MODULE=${APP_MODULE}
+#ENV WEB_CONCURRENCY=${WEB_CONCURRENCY}}
+ENV HOST=${HOST}
+ENV PORT=${PORT}
+
+EXPOSE ${PORT}
+
+ENTRYPOINT /.aio_init/aio_init; uvicorn ${APP_MODULE} --proxy-headers --port ${PORT} --host ${HOST}

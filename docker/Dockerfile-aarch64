@@ -37,6 +37,7 @@ ENV ngraph_DIR="/opt/openvino_2023.0.1/runtime/cmake"
 WORKDIR /app
 
 COPY requirements.txt .
+RUN pip install --break-system-packages --no-cache-dir torch~=2.0.1 onnxruntime~=1.15.1
 RUN pip install --break-system-packages --upgrade pip && pip install --no-cache-dir --break-system-packages -r requirements.txt
 COPY . .
 RUN python3 ./common/asset_downloader.py
