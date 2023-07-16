@@ -18,7 +18,7 @@ class ORTFaceDetector(DownloaderBase):
         json_priors_path = self.assets_folder/prior_boxes
         self.face_detector = RetinaFaceDetector(model_path=str(model_path.absolute()),
                                                 json_path=str(json_priors_path.absolute()),
-                                                top_k=40, min_conf=0.2)
+                                                top_k=40, min_conf=0.5)
 
     def detect_faces(self, image_url: str):
         local_image = str(self.download_image(image_url).absolute())
