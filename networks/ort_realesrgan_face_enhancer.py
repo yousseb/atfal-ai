@@ -6,7 +6,6 @@ from numba import jit, njit
 import numpy as np
 import onnxruntime
 import logging as log
-
 from common.downloer_base import DownloaderBase
 
 # Model from: https://github.com/PINTO0309/PINTO_model_zoo/blob/main/133_Real-ESRGAN

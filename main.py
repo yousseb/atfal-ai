@@ -8,6 +8,7 @@ from functools import lru_cache
 from api.models import Box
 from networks.cfrgan_face_frontalizer import CFRGANFaceFrontalizer
 from config import Settings
+from networks.gfpgan_face_ehnancer import GFPGANFaceEnhancer
 from networks.ort_realesrgan_face_enhancer import ORTRealESRGANFaceEnhancer
 from networks.ort_retinaface import ORTFaceDetector
 
@@ -27,7 +28,7 @@ app = FastAPI(
     title="Atfalmafkoda AI APIs 🚀",
     description=description,
     summary="AI API engine to help extract and match missing cases.",
-    version="0.0.2",
+    version="0.0.3",
     contact={
         "name": "Atfalmafkoda",
         "url": "https://atfalmafkoda.com/",
@@ -42,7 +43,8 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 ASSETS_FOLDER = Path(os.getcwd()) / 'assets'
 face_detector = ORTFaceDetector(ASSETS_FOLDER)
-face_enhancer = ORTRealESRGANFaceEnhancer(ASSETS_FOLDER)
+#face_enhancer = ORTRealESRGANFaceEnhancer(ASSETS_FOLDER)
+face_enhancer = GFPGANFaceEnhancer(ASSETS_FOLDER)
 face_frontalizer = CFRGANFaceFrontalizer(ASSETS_FOLDER)
 
 

@@ -16,3 +16,4 @@ assets
 **/*.pyc
 __pycache__
 .idea
+/gfpgan/

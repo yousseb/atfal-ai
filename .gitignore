@@ -148,3 +148,8 @@ dmypy.json
 
 .scrapy
 *.log
+/gfpgan/
+
+*.onnx
+*.pth
+/assets/**

@@ -22,10 +22,10 @@ ASSETS = [
     #       group='BSR-GAN'),
 
     # Image Enhancement
-    Asset(path=Path('assets/realesrgan_128x128.onnx'),
-          url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/assets%2Frealesrgan_128x128.onnx',
-          hash='5457754a8c3ca9eec280861f3a4ecb53c013842e',
-          group='Real-ESRGAN'),
+    # Asset(path=Path('assets/realesrgan_128x128.onnx'),
+    #       url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/assets%2Frealesrgan_128x128.onnx',
+    #       hash='5457754a8c3ca9eec280861f3a4ecb53c013842e',
+    #       group='Real-ESRGAN'),
 
     # Face Detection
     # Maybe use this instead?
@@ -49,8 +49,23 @@ ASSETS = [
           hash='c8cf0f1c2673695d19e462f9df20c52aaaa0e347',
           group='CFRGAN'),
 
-
-
+    # Face Enhancer
+    Asset(path=Path('assets/RestoreFormer.pth'),
+          url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/assets%2FRestoreFormer.pth',
+          hash='dc0f8ade489bcdadbc42592b0a63a48d3bc510c6',
+          group='CFRGAN Face Enhancer'),
+    Asset(path=Path('assets/realesr-general-x4v3.pth'),
+          url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/assets%2Frealesr-general-x4v3.pth',
+          hash='688d75fa881fd86719afd380f13499407959c4b4',
+          group='CFRGAN Face Enhancer'),
+    Asset(path=Path('gfpgan/weights/detection_Resnet50_Final.pth'),
+          url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/gfpgan%2Fweights%2Fdetection_Resnet50_Final.pth',
+          hash='94e19420c81ae2b05962a1fd3ad7550f9cd08298',
+          group='CFRGAN Face Enhancer'),
+    Asset(path=Path('gfpgan/weights/parsing_parsenet.pth'),
+          url='https://objectstorage.us-chicago-1.oraclecloud.com/n/axw9w7h9hwka/b/atfal-ai/o/gfpgan%2Fweights%2Fparsing_parsenet.pth',
+          hash='d6f31629eb3bab757318830d09e064d92d982d58',
+          group='CFRGAN Face Enhancer'),
 
     # CFRGAN
     Asset(path=Path('assets/CFRNet_G_ep55_vgg.pth'),
@@ -108,3 +123,12 @@ ASSETS = [
     #       group='Shelf'),
 
 ]
+
+
+if __name__ == '__main__':
+    import os
+    from asset_downloader import AssetDownloader
+    cwd = Path(os.getcwd())
+    if (list(cwd.parts)[-1:][0]).lower() == 'common':
+        os.chdir(Path('..').absolute())
+    AssetDownloader().verify_assets()

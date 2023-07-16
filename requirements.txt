@@ -17,19 +17,24 @@ requests-cache~=1.1.0
 opencv-python-headless~=4.8.0.74
 #nms
 
+facexlib>=0.2.5
+gfpgan>=1.3.7
+realesrgan>=0.2.5
+
+
 # We no longer do openvino. Only onnx and pytorch with the hope to move fully to onnx
 # OpenVino - only for x64. On aarch64 we will use docker installation for it
 # openvino-dev==2023.0.1; platform_machine != 'aarch64'
 # We should also install opencv manually since it doesn't come with OpenVino aarch64 download for docker
 
 # PyTorch on aarch64
-torch==2.0.1; platform_machine == 'aarch64'
+torch~=2.0.1; platform_machine == 'aarch64'
 torchvision; platform_machine == 'aarch64'
 
 # PyTorch on x64
 --extra-index-url https://download.pytorch.org/whl/cpu
-torch==2.0.1+cpu; platform_machine != 'aarch64'
-torchvision==0.15.2+cpu; platform_machine != 'aarch64'
+torch~=2.0.1+cpu; platform_machine != 'aarch64'
+torchvision~=0.15.2+cpu; platform_machine != 'aarch64'
 
 
 # dlib
