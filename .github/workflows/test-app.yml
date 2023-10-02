@@ -27,6 +27,7 @@ jobs:
         [ -d /tmp/venv ] || rm -fr /tmp/venv
         python3 -mvenv /tmp/venv
         source /tmp/venv/bin/activate
+        pip3 install --no-cache-dir --upgrade pip wheel setuptools
         pip3 install flake8 pytest httpx
         if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
         # Try to install pytorch3d from whl previously compiled and cached
