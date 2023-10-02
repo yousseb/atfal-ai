@@ -1,0 +1,28 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-image:
+    name: Build Docker Image
+    runs-on: [ self-hosted ]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build Image
+        run: |
+          docker build -f docker/Dockerfile-aarch64-ampere . -tatfal-ai
+
+  restart-services:
+     name: Restart Services
+     needs: build-image
+     runs-on: [self-hosted]
+     steps:
+     - name: Code Deploy / Restart
+       run: |
+         sudo /usr/local/bin/code_deploy.sh

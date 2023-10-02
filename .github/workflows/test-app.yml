@@ -2,18 +2,14 @@ name: API Test
 
 on:
   push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
 
 permissions:
   contents: read
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
-
+    runs-on: self-hosted
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.10
@@ -28,16 +24,19 @@ jobs:
         key: ${{ hashFiles('requirements.txt') }}
     - name: Install dependencies
       run: |
-        sudo sudo apt-get -y install libopenblas-dev
-        python -m pip install --upgrade pip
-        pip install flake8 pytest httpx
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        [ -d /tmp/venv ] || rm -fr /tmp/venv
+        python3 -mvenv /tmp/venv
+        source /tmp/venv/bin/activate
+        pip3 install flake8 pytest httpx
+        if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
         # Try to install pytorch3d from whl previously compiled and cached
         # Otherwise install from git
-        find ~/.cache/pip/wheels -type f -name pytorch3d-0.7.4-cp310-cp310-linux_x86_64.whl -exec pip install {} \;
+        find ~/.cache/pip/wheels -type f -name pytorch3d-0.7.4-cp310-cp310-linux_x86_64.whl -exec pip3 install {} \;
     - name: Rebuild pytorch3d
       if: steps.pip-cache.outputs.cache-hit != 'true'
-      run: python -m pip install "git+https://github.com/facebookresearch/pytorch3d.git@297020a4b1d7492190cb4a909cafbd2c81a12cb5"
+      run: |
+        deactivate 2>/dev/null || true && source /tmp/venv/bin/activate
+        python3 -m pip install "git+https://github.com/facebookresearch/pytorch3d.git@297020a4b1d7492190cb4a909cafbd2c81a12cb5"
     - name: Cache assets
       uses: actions/cache@v3
       with:
@@ -45,13 +44,17 @@ jobs:
         key: ${{ hashFiles('common/asset_config.py') }}
     - name: Download assets
       run: |
-        python ./common/asset_downloader.py
+        deactivate 2>/dev/null || true && source /tmp/venv/bin/activate
+        python3 ./common/asset_downloader.py
     - name: Lint with flake8
       run: |
+        deactivate 2>/dev/null || true && source /tmp/venv/bin/activate
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
+        deactivate 2>/dev/null || true && source /tmp/venv/bin/activate
+        source /tmp/venv/bin/activate
         pytest
