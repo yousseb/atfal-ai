@@ -1,9 +1,10 @@
 pip
 wheel
-fastapi~=0.99.1
+fastapi~=0.103.2
 python-multipart~=0.0.6
 uvicorn~=0.22.0
-pydantic~=1.10.11
+pydantic-settings~=2.0.3
+pydantic~=2.4.2
 numpy==1.24.*
 Pillow~=10.0.0
 requests~=2.31.0

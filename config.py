@@ -1,11 +1,9 @@
-from pydantic import BaseSettings
+from pathlib import Path
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# TODO: Actually use settings...
+env_location = Path("./.env").resolve()
 
 
 class Settings(BaseSettings):
-    app_name: str = "Atfalmafkoda API"
-    admin_email: str
-
-    class Config:
-        env_file = ".env"
+    model_config = SettingsConfigDict(env_file=env_location, env_file_encoding="utf-8")
+    API_KEYS: set[str]
