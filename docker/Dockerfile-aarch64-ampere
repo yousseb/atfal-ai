@@ -1,4 +1,4 @@
-FROM amperecomputingai/onnxruntime:1.6.0 as base
+FROM amperecomputingai/onnxruntime:1.8.0 as base
 
 
 RUN apt-get update && \
@@ -72,6 +72,14 @@ ARG PORT=8080
 ARG HOST=0.0.0.0
 ARG APP_MODULE=main:app
 ARG WEB_CONCURRENCY=1
+
+# Referehce: https://ampereaidevelopus.s3.amazonaws.com/releases/1.8.0/Ampere+Optimized+ONNXRuntime+Documentation+v1.8.0.pdf
+ARG AIO_PROCESS_MODE=1
+ARG AIO_CPU_BIND=1
+ARG AIO_MEM_BIND=1
+ARG AIO_NUMA_CPUS="0 1"
+ARG AIO_NUM_THREADS="all"
+ARG AIO_DEBUG_MODE=2
 
 ENV LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libjemalloc.so.2
 ENV MODE=production
