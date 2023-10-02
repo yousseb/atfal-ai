@@ -2,6 +2,8 @@ name: API Test
 
 on:
   push:
+    branches:
+      - disabled
   pull_request:
 
 permissions:
