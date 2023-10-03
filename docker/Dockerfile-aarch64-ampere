@@ -66,7 +66,7 @@ RUN pip install  --find-links /var/cache/pip/ pytorch3d
   #sudo docker rm ort-aio || true
 # Then uncomment the line below
 
-ADD onnxruntime.tar.gz /
+ADD /tmp/export/onnxruntime.tar.gz /
 
 ARG PORT=8080
 ARG HOST=0.0.0.0
