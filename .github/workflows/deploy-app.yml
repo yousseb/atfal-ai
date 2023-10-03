@@ -20,9 +20,7 @@ jobs:
             tar cfzv /export/onnxruntime.tar.gz \
             /usr/local/lib/python3.10/dist-packages/onnxruntime-1.14.1+aio9c3c0.dist-info/ \
             /usr/local/lib/python3.10/dist-packages/onnxruntime/'
-          cp /srv/atfal-ai/.env .
           docker build -f docker/Dockerfile-aarch64-ampere . -tatfal-ai
-          rm -f .env
           rm -f onnxruntime.tar.gz
 
   restart-services:
