@@ -1,21 +1,18 @@
 from fastapi.security.api_key import APIKeyHeader
 from fastapi import Security, HTTPException
-from starlette.status import HTTP_403_FORBIDDEN
-from functools import lru_cache
-from config import Settings
+from starlette import status
+from config import get_settings
 
-api_key_header = APIKeyHeader(name="access_token", auto_error=False)
-
-
-@lru_cache()
-def get_settings():
-    return Settings()
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 
 async def api_key_auth(header: str = Security(api_key_header)):
-    if header in get_settings().API_KEYS:
+    api_keys = get_settings().API_KEYS
+    print(f'header: {header}')
+    print(f'API_KEYS: {api_keys}')
+    if header in api_keys:
         return header
     else:
         raise HTTPException(
-            status_code=HTTP_403_FORBIDDEN, detail="Could not validate API KEY"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API Key."
         )

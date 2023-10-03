@@ -3,15 +3,15 @@ from pathlib import Path
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
-from functools import lru_cache
 from api.models import Box
 from auth import api_key_auth
 from networks.cfrgan_face_frontalizer import CFRGANFaceFrontalizer
-from config import Settings
+from config import get_settings
 from networks.gfpgan_face_ehnancer import GFPGANFaceEnhancer
 from networks.ort_realesrgan_face_enhancer import ORTRealESRGANFaceEnhancer
 from networks.ort_retinaface import ORTFaceDetector
 from fastapi import FastAPI, Body, Depends
+from starlette_admin.contrib.sqla import Admin, ModelView
 
 description = """
 This site should not be used except by Atfalmafkoda scheduled jobs.
@@ -29,7 +29,7 @@ app = FastAPI(
     title="Atfalmafkoda AI APIs 🚀",
     description=description,
     summary="AI API engine to help extract and match missing cases.",
-    version="0.0.4",
+    version="0.0.5",
     contact={
         "name": "Atfalmafkoda",
         "url": "https://atfalmafkoda.com/",
@@ -57,11 +57,6 @@ face_detector = ORTFaceDetector(ASSETS_FOLDER)
 # face_enhancer = ORTRealESRGANFaceEnhancer(ASSETS_FOLDER)
 face_enhancer = GFPGANFaceEnhancer(ASSETS_FOLDER)
 face_frontalizer = CFRGANFaceFrontalizer(ASSETS_FOLDER)
-
-
-@lru_cache()
-def get_settings():
-    return Settings()
 
 
 @app.get("/faces/", dependencies=[Depends(api_key_auth)])

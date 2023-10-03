@@ -1,5 +1,6 @@
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from functools import lru_cache
 import os
 
 # DATABASE_FILE = "auth_db.sqlite"
@@ -20,3 +21,8 @@ class Settings(BaseSettings):
         env_file=(env_location, env_prod_location),
         env_file_encoding="utf-8")
     API_KEYS: set[str]
+
+
+@lru_cache()
+def get_settings():
+    return Settings()
