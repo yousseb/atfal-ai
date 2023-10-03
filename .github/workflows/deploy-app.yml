@@ -16,12 +16,13 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build Image
         run: |
-          # Export onnxruntime from amperecomputingai/onnxruntime docker image
           docker run --privileged=true -it --rm --entrypoint "" -v $(pwd):/export amperecomputingai/onnxruntime:1.8.0 /bin/bash -c '\
             tar cfzv /export/onnxruntime.tar.gz \
             /usr/local/lib/python3.10/dist-packages/onnxruntime-1.14.1+aio9c3c0.dist-info/ \
             /usr/local/lib/python3.10/dist-packages/onnxruntime/'
+          
           docker build -f docker/Dockerfile-aarch64-ampere . -tatfal-ai
+          
           rm -fr onnxruntime.tar.gz
 
   restart-services:
