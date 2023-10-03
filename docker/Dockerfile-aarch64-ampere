@@ -1,5 +1,4 @@
-FROM amperecomputingai/onnxruntime:1.8.0 as base
-
+FROM amperecomputingai/amperecomputingai/pytorch:1.8.0 as base
 
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -56,7 +55,7 @@ RUN pip install  --find-links /var/cache/pip/ pytorch3d
 # If we use the pytorch version of base https://hub.docker.com/u/amperecomputingai
 # Do the following trick to extract onnxruntime:
   #sudo docker rm ort-aio || true
-  #sudo docker run --privileged=true --name ort-aio --network host -it -d amperecomputingai/onnxruntime:1.6.0
+  #sudo docker run --privileged=true --name ort-aio --network host -it -d amperecomputingai/onnxruntime:1.8.0
   #sudo docker exec ort-aio bash -c '[ -f /tmp/onnxruntime-1.13.1+aioab4cc.tar.gz ] && \
   #     rm -fr /tmp/onnxruntime-1.13.1+aioab4cc.tar.gz; \
   #     tar cfzv /tmp/onnxruntime-1.13.1+aioab4cc.tar.gz \
@@ -66,7 +65,8 @@ RUN pip install  --find-links /var/cache/pip/ pytorch3d
   #sudo docker stop ort-aio || true
   #sudo docker rm ort-aio || true
 # Then uncomment the line below
-#ADD onnxruntime-1.13.1+aioab4cc.tar.gz /
+
+ADD onnxruntime.tar.gz /
 
 ARG PORT=8080
 ARG HOST=0.0.0.0
@@ -80,6 +80,8 @@ ARG AIO_MEM_BIND=1
 ARG AIO_NUMA_CPUS="0 1"
 ARG AIO_NUM_THREADS="all"
 ARG AIO_DEBUG_MODE=2
+ARG AIO_NUM_THREADS=16
+ARG OMP_NUM_THREADS=16
 
 ENV LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libjemalloc.so.2
 ENV MODE=production
