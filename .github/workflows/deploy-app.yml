@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build Image
         run: |
-          docker run --privileged=true -it --rm --entrypoint "" -v $(pwd):/export amperecomputingai/onnxruntime:1.8.0 /bin/bash -c '\
+          docker run -it --rm --entrypoint '' -v $(pwd):/export amperecomputingai/onnxruntime:1.8.0 /bin/bash -c '\
             tar cfzv /export/onnxruntime.tar.gz \
             /usr/local/lib/python3.10/dist-packages/onnxruntime-1.14.1+aio9c3c0.dist-info/ \
             /usr/local/lib/python3.10/dist-packages/onnxruntime/'
