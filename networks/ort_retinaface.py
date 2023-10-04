@@ -23,6 +23,7 @@ class ORTFaceDetector(DownloaderBase):
     def detect_faces(self, image_url: str):
         local_image = str(self.download_image(image_url).absolute())
         image = cv2.imread(local_image, cv2.IMREAD_COLOR)
+        height, width, c = image.shape
         if self._DEBUG:
             output_image = image.copy()
         Path(local_image).unlink(missing_ok=True)
@@ -30,7 +31,8 @@ class ORTFaceDetector(DownloaderBase):
         faces = self.face_detector.detect_retina(image)
         boxes = []
         for (x, y, w, h) in faces:
-            box = Box(x1=x, x2=x+w, y1=y, y2=y+h)
+            box = Box(x1=max(int(x), 0), x2=min(int(x+w), width),
+                      y1=max(int(y), 0), y2=min(int(y+h), height))
             boxes.append(box)
 
         if self._DEBUG:
