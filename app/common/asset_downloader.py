@@ -4,6 +4,7 @@ from pathlib import Path
 from md5checker import make_hash
 from downloer_base import DownloaderBase
 from asset_config import Asset, ASSETS
+from loguru import logger
 
 
 class AssetDownloader(DownloaderBase):
@@ -12,12 +13,12 @@ class AssetDownloader(DownloaderBase):
 
     def verify_asset(self, asset: Asset) -> bool:
         if not asset.path.exists():
-            print(f'File not found for asset: {asset.path} in group: {asset.group}')
+            logger.info(f'File not found for asset: {asset.path} in group: {asset.group}')
             return False
         calculated_hash = make_hash(asset.path.absolute(), algo='sha1')
         if calculated_hash.lower() != asset.hash.lower():
-            print(f'Hashes not matching for: {asset.path} in group:  {asset.group} - '
-                  f'wanted: {asset.hash} - calculated: {calculated_hash}')
+            logger.info(f'Hashes not matching for: {asset.path} in group:  {asset.group} - '
+                        f'wanted: {asset.hash} - calculated: {calculated_hash}')
             return False
         return True
 
@@ -32,7 +33,7 @@ class AssetDownloader(DownloaderBase):
         asset.path.unlink(missing_ok=True)
 
     def download_asset(self, asset: Asset) -> bool:
-        print(f'Downloading asset: {asset.path} in group: {asset.group}')
+        logger.info(f'Downloading asset: {asset.path} in group: {asset.group}')
         Path(asset.path.parent).mkdir(parents=True, exist_ok=True)
         return self.download_file(asset.url, asset.path)
 

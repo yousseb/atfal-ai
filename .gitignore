@@ -152,4 +152,4 @@ dmypy.json
 
 *.onnx
 *.pth
-/assets/**
+/app/assets/**

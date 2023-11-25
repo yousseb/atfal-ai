@@ -7,7 +7,7 @@ venv
 openvino_env
 docker
 .github
-assets
+app/assets
 .editorconfig
 .gitattributes
 .gitignore

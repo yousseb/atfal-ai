@@ -64,8 +64,9 @@ def worker_thread(rfd, frame):
     rfd.running = False
 
 
-class RetinaFaceDetector():
-    def __init__(self, model_path="models/retinaface_640x640_opt.onnx", json_path="models/priorbox_640x640.json",
+class RetinaFaceDetector:
+    def __init__(self, model_path="models/retinaface_640x640_opt.onnx",
+                 json_path="models/priorbox_640x640.json",
                  threads=4, min_conf=0.4, nms_threshold=0.4, top_k=1, res=(640, 640)):
         options = onnxruntime.SessionOptions()
         options.inter_op_num_threads = 1

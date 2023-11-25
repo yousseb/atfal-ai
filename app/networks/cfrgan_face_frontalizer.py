@@ -8,6 +8,8 @@ import torch
 import sys
 import os
 from app.common.downloer_base import DownloaderBase
+from .cfrgan.generate_pairs import Estimator3D
+from .cfrgan.model.networks import CFRNet
 
 
 class CFRGANFaceFrontalizer(DownloaderBase):
@@ -18,9 +20,6 @@ class CFRGANFaceFrontalizer(DownloaderBase):
         estimator_model_path = str(Path(self.assets_folder / 'trained_weights_occ_3d.pth').absolute())
         cudnn.benchmark = True
         det_net = None
-        sys.path.append(str((Path(os.getcwd()) / 'app' / 'networks' / 'cfrgan').absolute()))
-        from generate_pairs import Estimator3D
-        from model.networks import CFRNet
 
         self.estimator3d = Estimator3D(is_cuda=False, render_size=224, assets_path=self.assets_folder,
                                        model_path=estimator_model_path, det_net=det_net,

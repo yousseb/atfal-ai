@@ -6,6 +6,7 @@ import torch
 from torchvision import transforms
 from torch.autograd import Variable
 import torchvision.utils as vutils
+from loguru import logger
 
 
 class FaceFrontalizer(CommonUtilsMixin):
@@ -18,7 +19,7 @@ class FaceFrontalizer(CommonUtilsMixin):
         sys.path.append(str((Path(os.getcwd()) / 'face_frontalization').absolute()))
         model_path = str((self.assets_folder / 'generator_v0.pt').absolute())
         self.saved_model = torch.load(model_path, map_location=torch.device('cpu'))
-        print('Model successfully loaded!')
+        logger.info('Model successfully loaded!')
 
     def frontaliza_face(self, image_url: str):
         local_image = str(self.download_image(image_url).absolute())
@@ -45,7 +46,7 @@ class FaceFrontalizer(CommonUtilsMixin):
         #im.save(f'{temp_file_name}.png')
         vutils.save_image(generated_image, f'{temp_file_name}.png', normalize=True)
 
-        print(f'{temp_file_name}.png')
+        logger.debug(f'{temp_file_name}.png')
         return f'{temp_file_name}.png'
 
 

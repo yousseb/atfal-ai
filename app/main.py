@@ -1,63 +1,70 @@
+#! /usr/bin/env python
+
 import os
 from pathlib import Path
+
 from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from fastapi import FastAPI, Depends
 from starlette.background import BackgroundTask
+from loguru import logger
+
 from app.api.models import Box
-from app.auth import api_key_auth
+from app.core.auth import api_key_auth
+from app.core.config import get_app_settings
 from app.networks.cfrgan_face_frontalizer import CFRGANFaceFrontalizer
 from app.networks.gfpgan_face_ehnancer import GFPGANFaceEnhancer
 from app.networks.ort_retinaface import ORTFaceDetector
-from fastapi import FastAPI, Depends
 
-description = """
-This site should not be used except by Atfalmafkoda scheduled jobs.
 
-Code running this API can be found here: <https://github.com/yousseb/atfal-ai>
+def get_application() -> FastAPI:
+    settings = get_app_settings()
 
-## Faces
+    settings.configure_logging()
 
-* Detect faces and returns **boxes** where faces could be within a given image.
-* Enhances faces
-* Frontalizes faces
+    application = FastAPI(**settings.fastapi_kwargs)
 
-"""
-app = FastAPI(
-    title="Atfalmafkoda AI APIs 🚀",
-    description=description,
-    summary="AI API engine to help extract and match missing cases.",
-    version="0.0.5",
-    contact={
-        "name": "Atfalmafkoda",
-        "url": "https://atfalmafkoda.com/",
-    },
-    license_info={
-        "name": "MIT",
-        "url": "https://opensource.org/license/mit/",
-    },
-    swagger_ui_parameters={
-        'Bearer': {
-            'type': 'apiKey',
-            'name': 'Authorization',
-            'in': 'header',
-            'description': '<hr/>'
-                           'Enter the word <tt>Token</tt> followed by space then your apiKey <br/><br/> '
-                           '<b>Example:</b> <pre>Token f4bff35e0f6427860ae31bde0b5f2352cbf73d80</pre>'
-                           '<hr/><br/>'
-        }
-    }
-)
-app.add_middleware(GZipMiddleware, minimum_size=1000)
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.allowed_hosts,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    application.add_middleware(GZipMiddleware, minimum_size=1000)
 
-ASSETS_FOLDER = Path(os.getcwd()) / 'assets'
+    # application.add_event_handler(
+    #     "startup",
+    #     create_start_app_handler(application, settings),
+    # )
+    # application.add_event_handler(
+    #     "shutdown",
+    #     create_stop_app_handler(application),
+    # )
+    #
+    # application.add_exception_handler(HTTPException, http_error_handler)
+    # application.add_exception_handler(RequestValidationError, http422_error_handler)
+    #
+    # application.include_router(api_router, prefix=settings.api_prefix)
+
+    return application
+
+
+app = get_application()
+logger.info("Starting up. Loading models.")
+
+ASSETS_FOLDER = Path(__file__).resolve().parents[1] / 'app' / 'assets'
 face_detector = ORTFaceDetector(ASSETS_FOLDER)
 # face_enhancer = ORTRealESRGANFaceEnhancer(ASSETS_FOLDER)
 face_enhancer = GFPGANFaceEnhancer(ASSETS_FOLDER)
 face_frontalizer = CFRGANFaceFrontalizer(ASSETS_FOLDER)
 
+logger.info("Models loaded...")
+
 
 @app.get("/faces/", dependencies=[Depends(api_key_auth)])
-async def detect_faces(image_url: str):
+def detect_faces(image_url: str):
     faces = face_detector.detect_faces(image_url=image_url)
     return faces
 
@@ -67,7 +74,7 @@ def remove_file(path: str) -> None:
 
 
 @app.post("/enhance/", dependencies=[Depends(api_key_auth)])
-async def enhance_face(image_url: str,
+def enhance_face(image_url: str,
                        box: Box) -> FileResponse:
     enhanced_face_path = face_enhancer.enhance_face(image_url=image_url, box=box)
     return FileResponse(enhanced_face_path,
@@ -76,7 +83,7 @@ async def enhance_face(image_url: str,
 
 
 @app.post("/frontalize/", response_class=FileResponse, dependencies=[Depends(api_key_auth)])
-async def frontalize_face(image_url: str) -> FileResponse:
+def frontalize_face(image_url: str) -> FileResponse:
     enhanced_face_path = face_frontalizer.frontaliza_face(image_url=image_url)
     return FileResponse(enhanced_face_path,
                         media_type="image/png",
@@ -84,5 +91,5 @@ async def frontalize_face(image_url: str) -> FileResponse:
 
 
 @app.get("/hello/{name}", dependencies=[Depends(api_key_auth)])
-async def say_hello(name: str):
+def say_hello(name: str):
     return {"message": f"Hello {name}"}
