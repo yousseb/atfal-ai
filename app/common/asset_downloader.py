@@ -25,7 +25,7 @@ class AssetDownloader(DownloaderBase):
         assets_ok = True
         for asset in ASSETS:
             if not self.verify_asset(asset):
-                assets_ok
+                assets_ok = False
         return assets_ok
 
     def delete_asset(self, asset: Asset) -> None:
@@ -54,5 +54,5 @@ class AssetDownloader(DownloaderBase):
 if __name__ == '__main__':
     cwd = Path(os.getcwd())
     if (list(cwd.parts)[-1:][0]).lower() == 'common':
-        os.chdir(Path('..').absolute())
+        os.chdir(Path('../..').absolute())
     AssetDownloader().ensure_assets()

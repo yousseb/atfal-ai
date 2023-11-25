@@ -3,15 +3,12 @@ from pathlib import Path
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
-from api.models import Box
-from auth import api_key_auth
-from networks.cfrgan_face_frontalizer import CFRGANFaceFrontalizer
-from config import get_settings
-from networks.gfpgan_face_ehnancer import GFPGANFaceEnhancer
-from networks.ort_realesrgan_face_enhancer import ORTRealESRGANFaceEnhancer
-from networks.ort_retinaface import ORTFaceDetector
-from fastapi import FastAPI, Body, Depends
-from starlette_admin.contrib.sqla import Admin, ModelView
+from app.api.models import Box
+from app.auth import api_key_auth
+from app.networks.cfrgan_face_frontalizer import CFRGANFaceFrontalizer
+from app.networks.gfpgan_face_ehnancer import GFPGANFaceEnhancer
+from app.networks.ort_retinaface import ORTFaceDetector
+from fastapi import FastAPI, Depends
 
 description = """
 This site should not be used except by Atfalmafkoda scheduled jobs.

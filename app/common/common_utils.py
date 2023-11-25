@@ -1,5 +1,4 @@
 import cv2
-from common.downloer_base import DownloaderBase
 
 
 def resize_image(image, size, keep_aspect_ratio=False, interpolation=cv2.INTER_CUBIC):

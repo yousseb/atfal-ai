@@ -130,5 +130,5 @@ if __name__ == '__main__':
     from asset_downloader import AssetDownloader
     cwd = Path(os.getcwd())
     if (list(cwd.parts)[-1:][0]).lower() == 'common':
-        os.chdir(Path('..').absolute())
+        os.chdir(Path('../..').absolute())
     AssetDownloader().verify_assets()

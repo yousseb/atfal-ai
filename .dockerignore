@@ -1,5 +1,6 @@
 .git
 .cache
+.env
 shelf
 tests
 venv
@@ -15,5 +16,9 @@ assets
 *.pyc
 **/*.pyc
 __pycache__
+**/__pycache__
+.pytest_cache
 .idea
 /gfpgan/
+venv-win
+venv

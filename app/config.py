@@ -11,7 +11,7 @@ import os
 # AUTH0_CLIENT_SECRET = os.getenv("AUTH0_CLIENT_SECRET", "your-auth0-client-secret")
 # AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN", "your-auth0-domain")
 
-env_location = Path("./.env").resolve()
+env_location = Path(".env").resolve()
 env_prod_location = Path("/config/.env.prod").resolve()
 
 

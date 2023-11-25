@@ -7,7 +7,7 @@ from gfpgan.utils import GFPGANer
 from realesrgan.utils import RealESRGANer
 import cv2
 
-from common.downloer_base import DownloaderBase
+from app.common.downloer_base import DownloaderBase
 
 upsampler_model_name = 'realesr-general-x4v3.pth'
 gfpgan_model_name = 'RestoreFormer.pth'
@@ -42,7 +42,8 @@ class GFPGANFaceEnhancer(DownloaderBase):
         if h < 300:
             img = cv2.resize(img, (w * 2, h * 2), interpolation=cv2.INTER_LANCZOS4)
 
-        # _, _, output = face_enhancer.enhance(img, has_aligned=False, only_center_face=False, paste_back=True, weight=weight)
+        # _, _, output = face_enhancer.enhance(img, has_aligned=False,
+        # only_center_face=False, paste_back=True, weight=weight)
         _, _, output = self.face_enhancer.enhance(img, has_aligned=False, only_center_face=False,
                                                   paste_back=True)
 

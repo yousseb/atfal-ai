@@ -2,11 +2,10 @@ import copy
 import tempfile
 from pathlib import Path
 import cv2
-from numba import jit, njit
+from numba import jit
 import numpy as np
 import onnxruntime
-import logging as log
-from common.downloer_base import DownloaderBase
+from app.common.downloer_base import DownloaderBase
 
 # Model from: https://github.com/PINTO0309/PINTO_model_zoo/blob/main/133_Real-ESRGAN
 # This is the ONNX model for ORT mainly for aarch64, should also run on Intel CPU

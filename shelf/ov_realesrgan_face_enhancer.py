@@ -4,7 +4,7 @@ from pathlib import Path
 import cv2
 from numba import jit
 
-from common.common_utils import CommonUtilsMixin, resize_input
+from app.common.common_utils import CommonUtilsMixin, resize_input
 import numpy as np
 from common.ie_common import Module
 from openvino.runtime import PartialShape, get_version

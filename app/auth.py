@@ -1,7 +1,7 @@
 from fastapi.security.api_key import APIKeyHeader
 from fastapi import Security, HTTPException
 from starlette import status
-from config import get_settings
+from app.config import get_settings
 
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 

@@ -7,14 +7,13 @@
 from pathlib import Path
 import cv2
 from numpy._typing import NDArray
-from numba import int64, float32  # import the types
-from openvino._pyopenvino.preprocess import PrePostProcessor
+from numba import float32  # import the types
 from api.models import Box
-from common.common_utils import CommonUtilsMixin, resize_input
+from app.common.common_utils import CommonUtilsMixin, resize_input
 import numpy as np
-from openvino.runtime import PartialShape, Layout, Type, get_version
-import logging as log
+from openvino.runtime import PartialShape, get_version
 from common.ie_common import Module, OutputTransform
+import logging as log
 
 model_name = "face-detection-adas-0001"
 model_xml_name = f'{model_name}.xml'

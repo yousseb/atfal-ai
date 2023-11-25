@@ -2,9 +2,9 @@
 from pathlib import Path
 
 import cv2
-from api.models import Box
-from common.downloer_base import DownloaderBase
-from networks.retinaface.retinaface import RetinaFaceDetector
+from app.api.models import Box
+from app.common.downloer_base import DownloaderBase
+from app.networks.retinaface.retinaface import RetinaFaceDetector
 
 model_name = 'retinaface_640x640_opt.onnx'
 prior_boxes = 'priorbox_640x640.json'
@@ -12,6 +12,7 @@ prior_boxes = 'priorbox_640x640.json'
 
 class ORTFaceDetector(DownloaderBase):
     def __init__(self, assets_folder: Path):
+        super().__init__()
         self.assets_folder: Path = assets_folder
         self._DEBUG: bool = False
         model_path = self.assets_folder/model_name

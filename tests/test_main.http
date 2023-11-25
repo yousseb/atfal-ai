@@ -7,12 +7,14 @@ Accept: application/json
 
 GET http://127.0.0.1:8000/faces/?image_url=https%3A%2F%2Fwww.ppic.org%2Fwp-content%2Fuploads%2FCrowd-of-Diverse-People_800x528-768x512.jpg
 Accept: application/json
+X-API-Key: a103907d-58ea-4323-b194-16ce23ef9822
 
 ###
 
 POST http://127.0.0.1:8000/enhance/?image_url=https%3A%2F%2Fwww.ppic.org%2Fwp-content%2Fuploads%2FCrowd-of-Diverse-People_800x528-768x512.jpg
 Accept: application/json
 Content-Type: application/json
+X-API-Key: a103907d-58ea-4323-b194-16ce23ef9822
 
 {
     "x1": 743,
@@ -25,6 +27,7 @@ Content-Type: application/json
 POST http://127.0.0.1:8000/enhance/?image_url=https%3A%2F%2Fwww.ppic.org%2Fwp-content%2Fuploads%2FCrowd-of-Diverse-People_800x528-768x512.jpg
 Accept: application/json
 Content-Type: application/json
+X-API-Key: a103907d-58ea-4323-b194-16ce23ef9822
 
 {
   "x1": 476,
@@ -37,18 +40,22 @@ Content-Type: application/json
 
 POST http://127.0.0.1:8000/frontalize/?image_url=https%3A%2F%2Fgithub.com%2FHRLTY%2FTP-GAN%2Fblob%2Fmaster%2Fdata-example%2F001_01_01_200_08_cropped.png%3Fraw%3Dtrue
 Accept: application/json
+X-API-Key: a103907d-58ea-4323-b194-16ce23ef9822
 
 ###
 
 POST http://127.0.0.1:8000/frontalize/?image_url=https%3A%2F%2Fgithub.com%2FHRLTY%2FTP-GAN%2Fblob%2Fmaster%2Fdata-example%2F001_01_01_041_07_cropped.png%3Fraw%3Dtrue
 Accept: application/json
+X-API-Key: a103907d-58ea-4323-b194-16ce23ef9822
 
 ###
 
 POST http://127.0.0.1:8000/frontalize/?image_url=https%3A%2F%2Fgithub.com%2FHRLTY%2FTP-GAN%2Fblob%2Fmaster%2Fdata-example%2F001_01_01_050_06_cropped.png%3Fraw%3Dtrue
 Accept: application/json
+X-API-Key: a103907d-58ea-4323-b194-16ce23ef9822
 
 ###
 
 POST http://127.0.0.1:8000/frontalize/?image_url=https%3A%2F%2Fgithub.com%2FHRLTY%2FTP-GAN%2Fblob%2Fmaster%2Fdata-example%2F001_01_01_140_06_cropped.png%3Fraw%3Dtrue
 Accept: application/json
+X-API-Key: a103907d-58ea-4323-b194-16ce23ef9822

@@ -1,5 +1,8 @@
 FROM amperecomputingai/pytorch:1.8.0 as base
 
+RUN echo 'APT::Install-Suggests "0";' >> /etc/apt/apt.conf.d/00-docker
+RUN echo 'APT::Install-Recommends "0";' >> /etc/apt/apt.conf.d/00-docker
+
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libopenblas0 \
@@ -8,16 +11,16 @@ RUN apt-get update && \
     tzdata \
     libgl1 \
     libglib2.0-0 \
-    libpython3.8 \
+    libpython3.10 \
     wget \
  && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+COPY app /app
+COPY requirements.txt /tmp
+RUN pip install  --upgrade pip pip wheel setuptools && pip install --no-cache-dir -r /tmp/requirements.txt
 
-COPY requirements.txt .
-RUN pip install  --upgrade pip pip wheel setuptools && pip install --no-cache-dir -r requirements.txt
-COPY . .
-RUN python3 ./common/asset_downloader.py
+WORKDIR /app
+RUN cd /app && python3 ./common/asset_downloader.py
 
 
 FROM base AS pypackage_builder

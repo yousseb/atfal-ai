@@ -1,7 +1,7 @@
 from pathlib import Path
 import dlib
 import cv2
-from common.common_utils import CommonUtilsMixin
+from app.common.common_utils import CommonUtilsMixin
 
 
 class DLibFaceDetector(CommonUtilsMixin):

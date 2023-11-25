@@ -1,7 +1,7 @@
 import tempfile
 from pathlib import Path
 import cv2
-from common.common_utils import CommonUtilsMixin
+from app.common.common_utils import CommonUtilsMixin
 import torch
 from torchvision import transforms
 from torch.autograd import Variable
