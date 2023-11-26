@@ -97,4 +97,4 @@ ENV PORT=${PORT}
 STOPSIGNAL SIGTERM
 EXPOSE ${PORT}
 
-ENTRYPOINT /.aio_init/aio_init; uvicorn ${APP_MODULE} --proxy-headers --port ${PORT} --host ${HOST}
+ENTRYPOINT /.aio_init/aio_init; PYTHONPATH=/ uvicorn ${APP_MODULE} --proxy-headers --port ${PORT} --host ${HOST}
