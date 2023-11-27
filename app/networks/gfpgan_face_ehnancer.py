@@ -4,6 +4,7 @@ from pathlib import Path
 
 from basicsr.archs.srvgg_arch import SRVGGNetCompact
 from gfpgan.utils import GFPGANer
+from numba import jit
 from realesrgan.utils import RealESRGANer
 import cv2
 
@@ -53,6 +54,7 @@ class GFPGANFaceEnhancer(DownloaderBase):
             output = cv2.resize(output, (int(w * scale / 2), int(h * scale / 2)), interpolation=interpolation)
         return output
 
+    @jit(forceobj=True)
     def get_best_input_rect(self, box, image_shape):
         new_box = copy.deepcopy(box)
         image_height, image_width = image_shape

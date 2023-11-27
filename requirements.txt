@@ -22,6 +22,9 @@ SQLAlchemy~=2.0.21
 deepface
 numba   # Don't version - leave it up to numpy
 loguru
+alembic
+httpx~=0.25.2
+hishel>=0.0.18
 #nms
 
 
